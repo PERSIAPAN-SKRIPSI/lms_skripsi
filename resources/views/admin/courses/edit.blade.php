@@ -22,7 +22,7 @@
 
                     <div>
                         <x-input-label for="name" :value="__('Name')" />
-                        <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" value="{{ $course->name }}" required autofocus />
+                        <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" value="{{ old('name', $course->name) }}" required autofocus />
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>
 
@@ -38,32 +38,58 @@
                         <select name="category_id" id="category_id" class="py-3 rounded-lg pl-3 w-full border border-slate-300">
                             <option value="">Choose category</option>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ $course->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                <option value="{{ $category->id }}" {{ old('category_id', $course->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
                         <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                     </div>
 
                     <div class="mt-4">
-                        <x-input-label for="about" :value="__('About')" />
-                        <textarea name="about" id="about" cols="30" rows="5" class="border border-slate-300 rounded-xl w-full">{{ $course->about }}</textarea>
-                        <x-input-error :messages="$errors->get('about')" class="mt-2" />
+                        <x-input-label for="teacher_id" :value="__('Teacher')" />
+                        <select name="teacher_id" id="teacher_id" class="py-3 rounded-lg pl-3 w-full border border-slate-300">
+                            <option value="">Choose Teacher</option>
+                            @foreach($teachers as $teacher)
+                                <option value="{{ $teacher->id }}" {{ old('teacher_id', $course->teacher_id) == $teacher->id ? 'selected' : '' }}>{{ $teacher->user->name }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('teacher_id')" class="mt-2" />
                     </div>
 
                     <div class="mt-4">
-                        <x-input-label for="price_in_coins" :value="__('Price in Coins')" />
-                        <x-text-input id="price_in_coins" class="block mt-1 w-full" type="number" name="price_in_coins" value="{{ $course->price_in_coins }}" required min="0" />
-                        <x-input-error :messages="$errors->get('price_in_coins')" class="mt-2" />
+                        <x-input-label for="about" :value="__('About')" />
+                        <textarea name="about" id="about" cols="30" rows="5" class="border border-slate-300 rounded-xl w-full">{{ old('about', $course->about) }}</textarea>
+                        <x-input-error :messages="$errors->get('about')" class="mt-2" />
                     </div>
 
                     <div class="mt-4">
                         <x-input-label for="keypoints" :value="__('Keypoints')" />
                         <div class="flex flex-col gap-y-2">
                             @foreach($course->keypoints as $keypoint)
-                                <input type="text" class="py-3 rounded-lg border border-slate-300" name="course_keypoints[]" value="{{ $keypoint->content }}">
+                                <x-text-input type="text" class="py-3 rounded-lg border border-slate-300" name="course_keypoints[]" value="{{ old('course_keypoints.' . $loop->index, $keypoint->name) }}" />
                             @endforeach
                         </div>
-                        <x-input-error :messages="$errors->get('course_keypoints')" class="mt-2" />
+                         <x-input-error :messages="$errors->get('course_keypoints')" class="mt-2" />
+                     </div>
+
+                    <div class="mt-4">
+                        <x-input-label for="demo_video_storage" :value="__('Demo Video Storage')" />
+                        <select name="demo_video_storage" id="demo_video_storage" class="py-3 rounded-lg pl-3 w-full border border-slate-300" required>
+                            <option value="" disabled {{ is_null(old('demo_video_storage')) ? 'selected' : '' }}>Select Storage Type</option>
+                            <option value="upload" {{ old('demo_video_storage', $course->demo_video_storage) == 'upload' ? 'selected' : '' }}>Upload</option>
+                            <option value="youtube" {{ old('demo_video_storage', $course->demo_video_storage) == 'youtube' ? 'selected' : '' }}>Youtube</option>
+                            <option value="external_link" {{ old('demo_video_storage', $course->demo_video_storage) == 'external_link' ? 'selected' : '' }}>External Link</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('demo_video_storage')" class="mt-2" />
+                    </div>
+
+                    <div class="mt-4">
+                        <x-input-label for="demo_video_source" :value="__('Demo Video Source')" />
+                        @if (old('demo_video_storage', $course->demo_video_storage) == 'upload')
+                            <input type="file" id="demo_video_source_file" name="demo_video_source_file" class="block mt-1 w-full" />
+                        @else
+                            <x-text-input id="demo_video_source" class="block mt-1 w-full" type="text" name="demo_video_source" value="{{ old('demo_video_source', $course->demo_video_source) }}" />
+                        @endif
+                        <x-input-error :messages="$errors->get('demo_video_source')" class="mt-2" />
                     </div>
 
                     <div class="flex items-center justify-end mt-4">

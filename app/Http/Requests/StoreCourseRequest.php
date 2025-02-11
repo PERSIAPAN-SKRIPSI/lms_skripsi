@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCourseRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreCourseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasAnyRole(['owner', 'teacher']);
+        return $this->user()->hasAnyRole(['admin', 'teacher']);
     }
 
     /**
@@ -22,14 +23,37 @@ class StoreCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'name' => ['required', 'string', 'max:255'],
-            'path_trailer' =>  ['required', 'string', 'max:255'],
-            'about' =>  ['required', 'string', 'max:255'],
-            'category_id' =>  ['required', 'integer',],
-            'thumbnail' =>  ['required','image','mimes:png,jpg,jpeg,svg',],
-            'course_keypoints.*' =>  ['required', 'string', 'max:255'],
-            'price_in_coins' => ['required', 'integer', 'min:0'], // Validasi untuk memastikan bilangan bulat positif
+            'name' => 'required|string|max:255',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'category_id' => 'required|exists:categories,id',
+            'teacher_id' => 'required|exists:teachers,id',
+            'about' => 'required|string',
+            'demo_video_storage' => ['required', Rule::in(['upload', 'youtube', 'external_link'])],
+            'demo_video_source' => [
+                'required_if:demo_video_storage,youtube,external_link',
+                'nullable',
+                'string',
+            ],
+            'demo_video_source_file' => [
+                'required_if:demo_video_storage,upload',
+                'nullable',
+                'file',
+                'mimes:mp4,mov,ogg,qt,avi', // Added avi
+                'max:2048000' // 2GB (in KB)
+            ],
+            'duration' => 'nullable|string',
+            'course_keypoints' => 'nullable|array',
+            'course_keypoints.*' => 'nullable|string',
+            'path_trailer' => 'nullable|string',
         ];
     }
+
+     // OPTIONAL: Custom error messages
+     public function messages()
+     {
+          return[
+            'demo_video_source.required_if' => 'A Video source is required',
+            'demo_video_source_file.required_if' =>'Please Upload your video'
+          ];
+     }
 }

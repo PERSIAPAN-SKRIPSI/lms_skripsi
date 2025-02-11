@@ -15,6 +15,7 @@ class CourseVideo extends Model
         'name',
         'path_video',
         'course_id',
+        'chapter_id', // TAMBAHKAN INI!
     ];
 
     /**
@@ -26,5 +27,8 @@ class CourseVideo extends Model
     {
         return $this->belongsTo(Course::class);
     }
+    public function chapter(): BelongsTo
+    {
+       return $this->belongsTo(Chapter::class);
+    }
 }
- 

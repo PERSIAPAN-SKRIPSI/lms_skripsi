@@ -12,7 +12,10 @@ class CourseEmployeeController extends Controller
      */
     public function index()
     {
-        //
+        // Get the currently authenticated user's courses.
+
+        // Return the view, passing the courses to it.
+        return view('admin.employees.courses.index');
     }
 
     /**

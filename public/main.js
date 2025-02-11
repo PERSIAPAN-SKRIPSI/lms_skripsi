@@ -1,12 +1,12 @@
 // Accordion funtion
 document.addEventListener('DOMContentLoaded', function() {
     const accordionBtns = document.querySelectorAll('.accordion-button');
-    
+
     accordionBtns.forEach(btn => {
       btn.addEventListener('click', function() {
         const targetId = this.dataset.accordion;
         const targetAccordion = document.getElementById(targetId);
-  
+
         btn.classList.toggle('open');
         targetAccordion.classList.toggle('hide');
 
@@ -70,7 +70,7 @@ if ($('#course-slider').length) {
 document.addEventListener("DOMContentLoaded", function() {
     // Check if there are elements with the data-fancybox attribute
     const fancyboxElements = document.querySelectorAll("[data-fancybox]");
-    
+
     // If there are elements with data-fancybox attribute, bind FancyBox
     if (fancyboxElements.length > 0) {
         Fancybox.bind("[data-fancybox]", {
@@ -85,7 +85,7 @@ function updateFileName(input) {
         // Get the file name
         var fileName = input.files[0].name;
         console.log(fileName);
-        
+
         // Update the text of the <p> element inside the button
         document.getElementById('fileLabel').innerText = fileName;
     }

@@ -16,6 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug');
             $table->string('icon');
+            $table->string('image');
+            $table->foreignId('parent_id')
+            ->nullable()
+            ->constrained('categories')
+            ->onDelete('cascade'); // Relasi ke tabel itu sendiri
             $table->timestamps();
             $table->softDeletes();
         });

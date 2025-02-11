@@ -43,6 +43,7 @@ return [
         'toc' => Components\Markdown\ToC::class,
         'trix' => Components\Editors\Trix::class,
         'unsplash' => Components\Support\Unsplash::class,
+        'heroicon' => BladeUI\Heroicons\BladeHeroiconsComponent::class,
     ],
 
     /*

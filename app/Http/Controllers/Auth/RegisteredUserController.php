@@ -29,7 +29,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'occupation' => ['required', 'string', 'max:255'],
             'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'role' => ['required', 'in:employee,teacher'],
+            'role' => ['required', 'in:employee,teacher'], // Gunakan role
             'certificate' => ['required_if:role,teacher', 'file', 'mimes:pdf,doc,docx,jpeg,png,jpg', 'max:5120'],
             'cv' => ['required_if:role,teacher', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ]);
@@ -37,12 +37,16 @@ class RegisteredUserController extends Controller
         // Upload avatar
         $avatarPath = $request->file('avatar')->store('avatars', 'public');
 
+         // Determine is_approved based on role (only employee needs approval)
+         $isApproved = $request->role !== 'employee';
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'occupation' => $request->occupation,
             'avatar' => $avatarPath,
+            'is_approved' => $isApproved, // Set is_approved
         ]);
 
         // Handle teacher registration

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder; // Tambahkan ini
+
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,8 +31,8 @@ class User extends Authenticatable
         'position',
         'employment_status',
         'join_date',
-        'is_active'
-
+        'is_active',
+        'is_approved' // Tambahkan is_approved disini
     ];
 
     protected $hidden = [
@@ -41,6 +43,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_approved' => 'boolean', // Cast is_approved to boolean
     ];
 
     /**
@@ -70,4 +73,38 @@ class User extends Authenticatable
     {
         return Storage::url($this->avatar);
     }
+     /**
+     * Cek apakah user adalah PRO (employee)
+     */
+   /**
+     * Check if user is an approved employee and thus PRO
+     */
+    public function isPro(): bool
+    {
+        return $this->employment_status === 'employee' && $this->is_approved;
+    }
+
+    // Attribute to get pro status
+    public function getProStatusAttribute(): string
+    {
+        if ($this->isPro()) {
+            return 'PRO';
+        } elseif ($this->employment_status === 'employee' && !$this->is_approved) {
+            return 'Pending Approval';
+        } else {
+            return '';
+        }
+    }
+     // Scope untuk mendapatkan hanya karyawan (employees)
+ // Scope untuk mendapatkan hanya karyawan (employees)
+ public function scopeEmployees(Builder $query): void
+ {
+     $query->where('employment_status', 'employee');
+ }
+
+ // Scope untuk mendapatkan employees yang belum di-approve
+ public function scopePendingApproval(Builder $query): void
+ {
+     $query->employees()->where('is_approved', false);
+ }
 }

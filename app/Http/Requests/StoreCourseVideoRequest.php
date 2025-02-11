@@ -11,7 +11,7 @@ class StoreCourseVideoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasAnyRole(['teacher', 'owner']);
+        return $this->user()->hasAnyRole(['teacher', 'admin']);
     }
 
     /**
@@ -25,6 +25,7 @@ class StoreCourseVideoRequest extends FormRequest
             //
             'name'       => ['required', 'string', 'min:3', 'max:255'],
             'path_video' => ['required', 'string', 'max:255'],
+            'chapter_id' => 'required|exists:chapters,id',
         ];
     }
 }

@@ -1,3 +1,4 @@
+<!-- resources/views/admin/categories/edit.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-row justify-between items-center">
@@ -11,14 +12,12 @@
         </div>
     </x-slot>
 
-
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden p-10 shadow-sm sm:rounded-lg">
-
                 @if ($errors->any())
                     @foreach ($errors->all() as $error)
-                        <div class="py-3 w-full rounded-3xl bg-red-500 text-white">
+                        <div class="py-3 px-4 mb-4 rounded-lg bg-red-100 text-red-700">
                             {{ $error }}
                         </div>
                     @endforeach
@@ -29,36 +28,127 @@
                     @csrf
                     @method('PUT')
 
-                    <div>
+                    <!-- Name Field -->
+                    <div class="mb-6">
                         <x-input-label for="name" :value="__('Name')" />
                         <x-text-input id="name" class="block mt-1 w-full" type="text" name="name"
-                            :value="$category->name" required autofocus autocomplete="name" />
-                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="slug" :value="__('slug')" />
-                        <x-text-input id="slug" class="block mt-1 w-full" type="text" slug="slug"
-                            :value="$category->slug" required autofocus autocomplete="slug" />
-                        <x-input-error :messages="$errors->get('slug')" class="mt-2" />
+                            :value="$category->name" required autofocus />
                     </div>
 
-                    <div class="mt-4">
-                        <x-input-label for="icon" :value="__('Icon')" />
-                        <x-text-input id="icon" class="block mt-1 w-full" type="file" name="icon" autofocus
-                            autocomplete="icon" />
-                        <x-input-error :messages="$errors->get('icon')" class="mt-2" />
-                        <img src="{{ Storage::url($category->icon) }}" alt="{{ $category->name }}"
-                            class="mt-2 h-20 w-20 object-cover rounded-full">
+                    <!-- Icon Section -->
+                    <div class="mb-6">
+                        <x-input-label :value="__('Icon')" class="mb-2" />
+
+                        <!-- Current Icon Preview -->
+                        @if($category->icon)
+                            <div class="mb-4">
+                                <label class="text-sm text-gray-600 mb-2 block">Current Icon:</label>
+                                <img src="{{ filter_var($category->icon, FILTER_VALIDATE_URL) ? $category->icon : Storage::url($category->icon) }}"
+                                     alt="Current Icon"
+                                     class="w-20 h-20 object-cover rounded-lg border">
+                            </div>
+                        @endif
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- File Upload -->
+                            <div>
+                                <label class="text-sm text-gray-600 mb-2 block">Upload Icon:</label>
+                                <input type="file"
+                                       name="icon_file"
+                                       id="icon_file"
+                                       class="w-full border rounded-lg p-2"
+                                       accept="image/*">
+                            </div>
+
+                            <!-- URL Input -->
+                            <div>
+                                <label class="text-sm text-gray-600 mb-2 block">OR Icon URL:</label>
+                                <input type="text"
+                                       name="icon_url"
+                                       id="icon_url"
+                                       class="w-full border rounded-lg p-2"
+                                       placeholder="https://example.com/icon.png"
+                                       value="{{ filter_var($category->icon, FILTER_VALIDATE_URL) ? $category->icon : '' }}">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-center justify-end mt-4">
-                        <button type="submit" class="font-bold py-4 px-6 bg-indigo-700 text-white rounded-full">
+                    <!-- Image Section -->
+                    <div class="mb-6">
+                        <x-input-label :value="__('Image')" class="mb-2" />
+
+                        <!-- Current Image Preview -->
+                        @if($category->image)
+                            <div class="mb-4">
+                                <label class="text-sm text-gray-600 mb-2 block">Current Image:</label>
+                                <img src="{{ filter_var($category->image, FILTER_VALIDATE_URL) ? $category->image : Storage::url($category->image) }}"
+                                     alt="Current Image"
+                                     class="w-32 h-32 object-cover rounded-lg border">
+                            </div>
+                        @endif
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- File Upload -->
+                            <div>
+                                <label class="text-sm text-gray-600 mb-2 block">Upload Image:</label>
+                                <input type="file"
+                                       name="image_file"
+                                       id="image_file"
+                                       class="w-full border rounded-lg p-2"
+                                       accept="image/*">
+                            </div>
+
+                            <!-- URL Input -->
+                            <div>
+                                <label class="text-sm text-gray-600 mb-2 block">OR Image URL:</label>
+                                <input type="text"
+                                       name="image_url"
+                                       id="image_url"
+                                       class="w-full border rounded-lg p-2"
+                                       placeholder="https://example.com/image.jpg"
+                                       value="{{ filter_var($category->image, FILTER_VALIDATE_URL) ? $category->image : '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg">
                             Update Category
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Icon handling
+            const iconFile = document.getElementById('icon_file');
+            const iconUrl = document.getElementById('icon_url');
+
+            iconFile.addEventListener('change', function() {
+                if (this.value) iconUrl.value = '';
+            });
+
+            iconUrl.addEventListener('input', function() {
+                if (this.value) iconFile.value = '';
+            });
+
+            // Image handling
+            const imageFile = document.getElementById('image_file');
+            const imageUrl = document.getElementById('image_url');
+
+            imageFile.addEventListener('change', function() {
+                if (this.value) imageUrl.value = '';
+            });
+
+            imageUrl.addEventListener('input', function() {
+                if (this.value) imageFile.value = '';
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

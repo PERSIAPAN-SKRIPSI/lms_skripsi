@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('path_video');
+            $table->foreignId('chapter_id')->constrained()->cascadeOnDelete();
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

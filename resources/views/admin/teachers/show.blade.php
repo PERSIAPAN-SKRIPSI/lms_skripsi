@@ -18,7 +18,7 @@
                     <h3 class="text-lg font-semibold text-indigo-950">Teacher Information</h3>
                 </div>
                 <div class="mb-4">
-                    <img src="{{ $teacher->user->avatar_url }}" alt="Avatar"
+                    <img src="{{ Storage::url($teacher->user->avatar) }}" alt="Avatar"
                         class="rounded-full object-cover w-20 h-20 mb-4">
                     <strong>Name:</strong> {{ $teacher->user->name }}
                     <br>

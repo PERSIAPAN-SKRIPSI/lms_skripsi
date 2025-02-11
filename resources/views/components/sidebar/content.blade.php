@@ -1,60 +1,85 @@
-<x-perfect-scrollbar as="nav" aria-label="main" class="flex flex-col flex-1 gap-4 px-3">
+{{-- resources/views/components/sidebar.blade.php --}}
+<x-perfect-scrollbar as="nav" aria-label="main" class="flex flex-col flex-1 gap-4 px-3 py-6 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"> {{-- Dark background and border --}}
 
-    <!-- Dashboard -->
-    <x-sidebar.link title="Dashboard" href="{{ route('dashboard') }}" :isActive="request()->routeIs('dashboard')">
-        <x-slot name="icon">
-            <x-heroicon-o-home class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-        </x-slot>
-    </x-sidebar.link>
+    @php
+    $currentRouteName = Route::currentRouteName();
+    @endphp
 
-    <!-- Dropdown untuk Admin (Owner) -->
-    @role('admin')
-        <x-sidebar.dropdown title="Admin Management" :active="request()->routeIs('admin.categories.*') || request()->routeIs('admin.teachers.*')">
-            <x-slot name="icon">
-                <x-heroicon-o-cog-6-tooth class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-            </x-slot>
+    <div class="space-y-6">
+        @if (auth()->user()->hasRole('admin'))
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3 px-3 leading-tight dark:text-white">ADMINISTRATION</h3> {{-- Dark mode text color for title --}}
+                <x-sidebar.link title="Dashboard" href="{{ route('admin.dashboard') }}" :isActive="$currentRouteName == 'admin.dashboard'">
+                    <x-slot name="icon">
+                        <x-icons.dashboard class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                </x-sidebar.link>
 
-            <!-- Submenu untuk Admin -->
-            <x-sidebar.link title="Categories" href="{{ route('admin.categories.index') }}" :isActive="request()->routeIs('admin.categories.index')" />
-            <x-sidebar.link title="Teachers" href="{{ route('admin.teachers.index') }}" :isActive="request()->routeIs('admin.teachers.index')" />
-        </x-sidebar.dropdown>
-    @endrole
+                <x-sidebar.dropdown title="Course Management" :isActive="Str::startsWith($currentRouteName, 'admin.courses.') || Str::startsWith($currentRouteName, 'admin.categories.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-collection class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                    <x-sidebar.sublink title="Courses" href="{{ route('admin.courses.index') }}" :isActive="Str::startsWith($currentRouteName, 'admin.courses.')" />
+                    <x-sidebar.sublink title="Categories" href="{{ route('admin.categories.index') }}" :isActive="Str::startsWith($currentRouteName, 'admin.categories.')" />
+                </x-sidebar.dropdown>
 
-    <!-- Dropdown untuk Courses (admin dan Teacher) -->
-    @role('admin|teacher')
-        <x-sidebar.dropdown title="Course Management" :active="request()->routeIs('admin.courses.*') || request()->routeIs('admin.course_videos.*')">
-            <x-slot name="icon">
-                <x-heroicon-o-book-open class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-            </x-slot>
+                <x-sidebar.dropdown title="Teacher Management" :isActive="Str::startsWith($currentRouteName, 'admin.teachers.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-user-group class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                    <x-sidebar.sublink title="Teachers" href="{{ route('admin.teachers.index') }}" :isActive="Str::startsWith($currentRouteName, 'admin.teachers.')" />
+                </x-sidebar.dropdown>
+            </div>
+            <hr class="border-gray-200 dark:border-gray-700"> {{-- Dark mode border color for hr --}}
+        @endif
 
-            <!-- Submenu untuk Courses (admin) -->
-            @role('admin')
-                <x-sidebar.link title="All Courses" href="{{ route('admin.courses.index') }}" :isActive="request()->routeIs('admin.courses.index')" />
-            @endrole
+        @if(auth()->user()->hasRole('teacher') && auth()->user()->teacher && auth()->user()->teacher->is_active)
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3 px-3 leading-tight dark:text-white">TEACHER</h3> {{-- Dark mode text color for title --}}
+                <x-sidebar.link title="Dashboard" href="{{ route('teacher.dashboard') }}" :isActive="$currentRouteName == 'teacher.dashboard'">
+                    <x-slot name="icon">
+                        <x-icons.dashboard class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                </x-sidebar.link>
 
-            <!-- Submenu untuk Courses (Teacher) -->
-            @role('teacher')
-                <x-sidebar.link title="My Courses" href="{{ route('admin.courses.index') }}" :isActive="request()->routeIs('admin.courses.index')" />
-                <x-sidebar.link title="Create Course" href="{{ route('admin.courses.create') }}" :isActive="request()->routeIs('admin.courses.create')" />
-            @endrole
-            <!-- Submenu untuk Courses (admin & teacher) -->
-            @role('admin|teacher')
-                <x-sidebar.link title="Course Videos" href="{{ route('admin.course_videos.index') }}" :isActive="request()->routeIs('admin.course_videos.*')" />
-            @endrole
-        </x-sidebar.dropdown>
-    @endrole
+                <x-sidebar.dropdown title="Course Management" :isActive="Str::startsWith($currentRouteName, 'teacher.courses.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-collection class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                    <x-sidebar.sublink title="My Courses" href="{{ route('admin.courses.index') }}" :isActive="Str::startsWith($currentRouteName, 'teacher.courses.')" />
+                    <x-sidebar.sublink title="Categories" href="{{ route('admin.categories.index') }}" :isActive="Str::startsWith($currentRouteName, 'teacher.categories.')" />
+                </x-sidebar.dropdown>
+            </div>
+            <hr class="border-gray-200 dark:border-gray-700"> {{-- Dark mode border color for hr --}}
+        @endif
 
-    <!-- Dropdown untuk Employee -->
-    @role('employee')
-        <x-sidebar.dropdown title="My Learning" :active="request()->routeIs('learning.*')">
-            <x-slot name="icon">
-                <x-heroicon-o-academic-cap class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-            </x-slot>
+        @if(auth()->user()->hasRole('employee'))
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3 px-3 leading-tight dark:text-white">EMPLOYEE</h3> {{-- Dark mode text color for title --}}
+                <x-sidebar.link title="Dashboard" href="{{ route('employee.dashboard') }}" :isActive="$currentRouteName == 'employee.dashboard'">
+                    <x-slot name="icon">
+                        <x-icons.dashboard class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                </x-sidebar.link>
+                <x-sidebar.link title="Courses" href="{{ route('employee.courses.index') }}" :isActive="Str::startsWith($currentRouteName, 'employee.courses.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-collection class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                </x-sidebar.link>
+            </div>
+            <hr class="border-gray-200 dark:border-gray-700"> {{-- Dark mode border color for hr --}}
+        @endif
 
-            <!-- Submenu untuk Employee -->
-            <x-sidebar.link title="Enrolled Courses" href="{{ route('learning.courses') }}" :isActive="request()->routeIs('learning.courses')" />
-            <x-sidebar.link title="Progress" href="{{ route('learning.progress') }}" :isActive="request()->routeIs('learning.progress')" />
-        </x-sidebar.dropdown>
-    @endrole
+        @if(!auth()->user()->hasRole(['admin', 'teacher', 'employee']))
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-3 px-3 leading-tight dark:text-white">GENERAL</h3> {{-- Dark mode text color for title --}}
+                <x-sidebar.link title="Dashboard" href="{{ route('dashboard') }}" :isActive="request()->routeIs('dashboard')">
+                    <x-slot name="icon">
+                        <x-icons.dashboard class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Dark mode icon color --}}
+                    </x-slot>
+                </x-sidebar.link>
+            </div>
+        @endif
+    </div>
 
 </x-perfect-scrollbar>

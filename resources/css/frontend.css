@@ -1,0 +1,250 @@
+.wsus__sign_in {
+    margin-top: 100px;
+}
+
+.item_list li {
+    color: var(--colorBlack);
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid gray;
+    padding: 13px 50px 13px 55px;
+    position: relative;
+    margin: 10px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    -ms-border-radius: 8px;
+    -o-border-radius: 8px;
+}
+
+.item_list li span {
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+}
+
+.item_list li::before {
+    position: absolute;
+    content: "\f03d";
+    font-family: "font awesome 5 free";
+    font-size: 16px;
+    font-weight: 600;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    background: var(--colorPrimary);
+    color: var(--colorWhite);
+    top: 7px;
+    left: 12px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+}
+
+.wsus__dash_course_table .image img {
+    height: 120px !important;
+    object-fit: cover !important;
+}
+.wsus__courses_sidebar_share_area ul li a {
+    position: relative;
+}
+
+.wsus__courses_sidebar_share_area ul li a i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+}
+/* CSS Variables for Theming */
+:root {
+    --primary-color: #1a2ee6;
+    /* Use your brand's primary color */
+    --text-color: #333;
+    --light-bg: #f8f9fa;
+    --box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+/* Dropdown Styles */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -1px;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: var(--box-shadow);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: var(--light-bg);
+    color: var(--primary-color);
+}
+
+/* === Right Menu Styles === */
+.right_menu {
+    display: flex;
+    align-items: center;
+}
+
+/* Styles for when the user is authenticated */
+.right_menu > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-info {
+    text-align: right;
+}
+
+.profile-info p {
+    font-size: 1rem; /* Adjust as needed */
+    color: var(--dark-color);
+    font-weight: 500; /* Sedikit lebih tebal */
+}
+
+.profile-info .badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Bayangan lebih halus */
+}
+
+/* Avatar Styles */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 45px;
+    height: 45px;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Neumorphism light */
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transisi lebih dinamis */
+}
+
+.profile-avatar:hover {
+    transform: translateY(-3px); /* Sedikit mengangkat saat dihover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12); /* Efek lebih kuat saat dihover */
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%; /* Pastikan gambar juga berbentuk lingkaran */
+}
+
+/* Avatar Status Indicator */
+.avatar-status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-status.online {
+    background-color: #28a745; /* Green for online */
+}
+
+.avatar-status.offline {
+    background-color: #dc3545; /* Red for offline */
+}
+
+/* Styles for when the user is a guest */
+.right_menu .btn {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem; /* Sedikit lebih besar */
+    border-radius: 2rem; /* Lebih membulat */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transisi lebih dinamis */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Neumorphism light */
+}
+
+.right_menu .btn-primary {
+    background: linear-gradient(
+        to right,
+        var(--primary-color),
+        darken(var(--primary-color), 10%)
+    ); /* Gradien */
+    border: none; /* Hilangkan border */
+    color: white;
+}
+
+.right_menu .btn-primary:hover {
+    transform: translateY(-2px); /* Sedikit mengangkat saat dihover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12); /* Efek lebih kuat saat dihover */
+}
+
+.right_menu .btn-outline-primary {
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color); /* Border lebih tebal */
+    background-color: transparent;
+}
+
+.right_menu .btn-outline-primary:hover {
+    background-color: rgba(
+        var(--primary-color-rgb),
+        0.1
+    ); /* Latar belakang transparan saat dihover */
+    transform: translateY(-2px); /* Sedikit mengangkat saat dihover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12); /* Efek lebih kuat saat dihover */
+}
+
+/* Mobile Menu */
+.mobile_menu_area .mobile_menu_logo img {
+    max-height: 40px;
+}
+
+.mobile_menu_area .offcanvas-header .btn-close {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+.mobile_menu_area .offcanvas-header .btn-close:hover {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+.mobile_menu_area .offcanvas-header .btn-close i {
+    color: inherit !important;
+}
+
+@media (max-width: 991.98px) {
+    .dropdown-submenu .dropdown-menu {
+        left: 0;
+        margin-left: 1rem;
+        margin-top: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .profile-avatar {
+        width: 40px;
+        height: 40px;
+    }
+}

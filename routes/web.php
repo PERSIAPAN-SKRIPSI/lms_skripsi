@@ -1,97 +1,98 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CourseEmployeeController;
 use App\Http\Controllers\CourseVideoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SubscribeTransactionController;
 use App\Http\Controllers\TeacherController;
-use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
-Route::get('/courses/{slug}', [FrontendController::class, 'showCourse'])->name('course.show');
-Route::get('/category/{category:slug}', [FrontendController::class, 'category'])->name('frontend.category');
+Route::get('/category', [FrontendController::class, 'category'])->name('frontend.pages.category');
+Route::get('/category/{category:slug}', [FrontendController::class, 'categoryDetail'])->name('frontend.pages.category-detail');
+Route::get('/courses/{slug}', [FrontendController::class, 'showCourse'])->name('frontend.pages.course-detail');
 
-// Dashboard (requires authentication)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Checkout Routes
-    Route::get('/checkout/{course}', [FrontendController::class, 'checkout'])->name('frontend.checkout');
-    Route::post('/checkout/{course}/store', [FrontendController::class, 'checkoutStore'])->name('frontend.checkout.store');
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get('/profile', 'edit')->name('profile.edit');
+        Route::patch('/profile', 'update')->name('profile.update');
+        Route::delete('/profile', 'destroy')->name('profile.destroy');
+    });
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin|teacher')->group(function () {
-
-      // Category Routes (Admin only)
-      Route::resource('categories', CategoryController::class)->middleware('role:admin');
-       // Subcategories Routes (Admin only)
-        Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'subCategoriesIndex'])->middleware('role:admin')->name('categories.sub-categories.index');
-        Route::get('/categories/{category}/sub-categories/create', [CategoryController::class, 'subCategoriesCreate'])->middleware('role:admin')->name('categories.sub-categories.create');
-        Route::post('/categories/{category}/sub-categories', [CategoryController::class, 'subCategoriesStore'])->middleware('role:admin')->name('categories.sub-categories.store');
-        Route::get('/categories/{category}/sub-categories/{subCategory}/edit', [CategoryController::class, 'subCategoriesEdit'])->middleware('role:admin')->name('categories.sub-categories.edit');
-        Route::put('/categories/{category}/sub-categories/{subCategory}', [CategoryController::class, 'subCategoriesUpdate'])->middleware('role:admin')->name('categories.sub-categories.update');
-        Route::delete('/categories/{category}/sub-categories/{subCategory}', [CategoryController::class, 'subCategoriesDestroy'])->middleware('role:admin')->name('categories.sub-categories.destroy');
-
-
-          // Teacher Routes (Admin only)
-        Route::resource('teachers', TeacherController::class)->middleware('role:admin');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::resource('employees', EmployeeController::class);
+        Route::post('/teachers/check-documents', [TeacherController::class, 'checkDocuments'])->name('teachers.check-documents');
+        Route::resource('teachers', TeacherController::class);
         Route::put('teachers/{teacher}/activate', [TeacherController::class, 'activate'])->name('teachers.activate');
+        Route::resource('categories', CategoryController::class)->except(['show']);
 
-        // Course Routes (Admin and Teacher)
-        Route::get('courses', [CourseController::class, 'index'])->name('courses.index');
-        Route::get('courses/create', [CourseController::class, 'create'])->name('courses.create');
-        Route::post('courses/create', [CourseController::class, 'store'])->name('courses.store');
-        Route::get('courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
-         Route::post('courses/update', [CourseController::class, 'update'])->name('courses.update');
-         Route::put('courses/{course}/update-approval', [CourseController::class, 'updateApproval'])->middleware('role:admin')->name('courses.update-approval');
-        // Course Content Routes (Admin and Teacher)
-        Route::get('course-content/{course}/create-chapter', [CourseController::class, 'createChapterModal'])->name('course-content.create-chapter');
-        Route::post('course-content/{course}/create-chapter', [CourseController::class, 'storeChapter'])->name('course-content.store-chapter');
-        Route::get('course-content/{chapter}/edit-chapter', [CourseController::class, 'editChapterModal'])->name('course-content.edit-chapter');
-        Route::post('course-content/{chapter}/edit-chapter', [CourseController::class, 'updateChapterModal'])->name('course-content.update-chapter');
-          Route::delete('course-content/{chapter}/chapter', [CourseController::class, 'destroyChapter'])->name('course-content.destory-chapter');
+        // Subcategories Routes
+        Route::prefix('categories/{category:slug}')->name('categories.sub-categories.')->group(function () {
+            Route::get('/', [CategoryController::class, 'subIndex'])->name('index');
+            Route::get('/create', [CategoryController::class, 'subCreate'])->name('create');
+            Route::post('/', [CategoryController::class, 'subStore'])->name('store');
+            Route::get('/{subCategory:slug}/edit', [CategoryController::class, 'subEdit'])->name('edit');
+            Route::put('/{subCategory:slug}', [CategoryController::class, 'subUpdate'])->name('update');
+            Route::delete('/{subCategory:slug}', [CategoryController::class, 'subDestroy'])->name('destroy');
+        });
 
-        Route::get('course-content/create-lesson', [CourseController::class, 'createLesson'])->name('course-content.create-lesson');
-        Route::post('course-content/create-lesson', [CourseController::class, 'storeLesson'])->name('course-content.store-lesson');
+        // Course Routes
+        Route::resource('courses', CourseController::class);
 
-        Route::get('course-content/edit-lesson', [CourseController::class, 'editLesson'])->name('course-content.edit-lesson');
-        Route::post('course-content/{id}/update-lesson', [CourseController::class, 'updateLesson'])->name('course-content.update-lesson');
-        Route::delete('course-content/{id}/lesson', [CourseController::class, 'destroyLesson'])->name('course-content.destroy-lesson');
+        Route::put('courses/{course}/update-approval', [CourseController::class, 'updateApproval'])->name('courses.update-approval');
 
+        Route::resource('courses.videos', CourseVideoController::class)->except(['show', 'index']);
 
-        Route::post('course-chapter/{chapter}/sort-lesson', [CourseController::class, 'sortLesson'])->name('course-chapter.sort-lesson');
+        // Course Content Routes
+        Route::controller(CourseController::class)->name('courses.')->group(function () {
+            Route::get('/{course}/create-chapter', 'createChapterModal')->name('create-chapter');
+            Route::post('/{course}/create-chapter', 'storeChapter')->name('store-chapter');
+            Route::get('/chapter/{chapter}/edit-chapter', 'editChapterModal')->name('edit-chapter');
+            Route::post('/chapter/{chapter}/edit-chapter', 'updateChapterModal')->name('update-chapter');
+            Route::delete('/chapter/{chapter}', 'destroyChapter')->name('destroy-chapter');
+        });
 
-        Route::get('course-content/{course}/sort-chapter', [CourseController::class, 'sortChapter'])->name('course-content.sort-chpater');
-        Route::post('course-content/{course}/sort-chapter', [CourseController::class, 'updateSortChapter'])->name('course-content.update-sort-chpater');
+        // Course Video Routes
+        Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
+            Route::get('/{course}/add/video', 'create')->name('create.video');
+            Route::post('/{course}/add/video', 'store')->name('store.video');
+            Route::get('/video/{course_video}/edit', 'edit')->name('edit.video');
+            Route::put('/video/{course_video}', 'update')->name('update.video');
+            Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
+        });
+    });
 
-        // Course Video Routes (Admin and Teacher)
-          Route::get('/add/video/{course:id}', [CourseVideoController::class, 'create'])
-                ->name('course.add.video');
-            Route::post('/add/video/{course:id}', [CourseVideoController::class, 'store'])
-                ->name('course.add.video.store');
-          Route::resource('course_videos', CourseVideoController::class);
+    // Teacher Routes
+    Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {
+        Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
+
+        // Course Video Routes
+        Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
+            Route::get('/{course}/add/video', 'create')->name('create.video');
+            Route::post('/{course}/add/video', 'store')->name('store.video');
+            Route::get('/video/{course_video}/edit', 'edit')->name('edit.video');
+            Route::put('/video/{course_video}', 'update')->name('update.video');
+            Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
+        });
+    });
+
+    // Employee Routes
+    Route::prefix('employee')->name('employee.')->middleware('role:employee')->group(function () {
+        Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/courses', [CourseEmployeeController::class, 'index'])->name('courses.index');
     });
 });
 
