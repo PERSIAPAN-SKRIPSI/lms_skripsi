@@ -17,7 +17,7 @@ class FrontendController extends Controller
     {
         $categories = Category::with('children')->get(); // Eager load children
         $courses = Course::all(); //  Anda mungkin ingin membatasi atau mengurutkan ini
-        return view('frontend.index', [
+        return view('frontend.pages.index', [
             'categories' => $categories,
             'courses' => $courses,
         ]);
@@ -37,7 +37,7 @@ class FrontendController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('frontend.pages.category', compact('categories'));
+        return view('frontend.pages.sections.category', compact('categories'));
     }
 
 
@@ -67,7 +67,7 @@ class FrontendController extends Controller
 
             $categories = Category::with('children')->where('parent_id', null)->get(); // Add this line
 
-            return view('frontend.pages.category-detail', compact('category', 'courses', 'categories')); // Update to include categories
+            return view('frontend.pages.sections.category-detail', compact('category', 'courses', 'categories')); // Update to include categories
 
         } catch (ModelNotFoundException $e) {
             // Handle jika kategori tidak ditemukan

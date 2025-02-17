@@ -32,3 +32,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Toggle Dropdown Menu
+    document.querySelectorAll('[id^="chapter-menu-button-"]').forEach(button => {
+        const chapterId = button.id.replace('chapter-menu-button-', '');
+        const menu = document.getElementById(`chapter-menu-${chapterId}`);
+
+        button.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the click from bubbling up and closing the menu immediately
+
+            // Close all other open menus
+            document.querySelectorAll('[id^="chapter-menu-"]:not(#chapter-menu-' + chapterId + ')').forEach(otherMenu => {
+                otherMenu.classList.add('hidden');
+            });
+
+            menu.classList.toggle('hidden');
+        });
+
+    });
+
+    // Close Dropdown on Outside Click
+    document.addEventListener('click', (event) => {
+        document.querySelectorAll('[id^="chapter-menu-"]').forEach(menu => {
+            if (!menu.classList.contains('hidden') && !menu.contains(event.target) && !event.target.matches('[id^="chapter-menu-button-"]')) {
+                menu.classList.add('hidden');
+            }
+        });
+    });
+});

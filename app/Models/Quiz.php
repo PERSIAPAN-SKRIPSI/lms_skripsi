@@ -18,7 +18,9 @@ class Quiz extends Model
         'description',
         'passing_score',
         'duration',
-        'is_active'
+        'is_active',
+        'chapter_id', // Pastikan chapter_id ada di sini!
+        
     ];
 
     // Relasi ke Course
@@ -37,5 +39,9 @@ class Quiz extends Model
     public function attempts(): HasMany
     {
         return $this->hasMany(QuizAttempt::class);
+    }
+    public function chapter()
+    {
+        return $this->belongsTo(Chapter::class);
     }
 }
