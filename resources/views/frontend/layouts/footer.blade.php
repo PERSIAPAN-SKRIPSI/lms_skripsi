@@ -54,7 +54,7 @@
                                 <ul>
                                     <li>
                                         <div class="icon">
-                                            <img src="images/call_icon_white.png" alt="Call" class="img-fluid">
+                                            <img src="frontend/assets/images/call_icon_white.png" alt="Call" class="img-fluid">
                                         </div>
                                         <div class="text">
                                             <h4>Call us:</h4>
@@ -63,7 +63,7 @@
                                     </li>
                                     <li>
                                         <div class="icon">
-                                            <img src="images/location_icon_white.png" alt="Call" class="img-fluid">
+                                            <img src="frontend/assets/images/location_icon_white.png" alt="Call" class="img-fluid">
                                         </div>
                                         <div class="text">
                                             <h4>Office:</h4>
