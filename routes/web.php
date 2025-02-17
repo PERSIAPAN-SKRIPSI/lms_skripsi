@@ -13,12 +13,17 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionOptionController;
+use App\Http\Controllers\QuizAttemptController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuizMonitoringController;
 
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/category', [FrontendController::class, 'category'])->name('frontend.pages.category');
 Route::get('/category/{category:slug}', [FrontendController::class, 'categoryDetail'])->name('frontend.pages.category-detail');
-Route::get('/courses/{slug}', [FrontendController::class, 'showCourse'])->name('frontend.pages.course-detail');
+Route::get('/courses/{slug}', [FrontendController::class, 'indexCourse'])->name('frontend.pages.course-detail');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -58,13 +63,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Course Content Routes
         Route::controller(CourseController::class)->name('courses.')->group(function () {
-            Route::get('/{course}/create-chapter', 'createChapterModal')->name('create-chapter');
+            Route::get('/{course}/create-chapter', 'createChapter')->name('create-chapter');
             Route::post('/{course}/create-chapter', 'storeChapter')->name('store-chapter');
-            Route::get('/chapter/{chapter}/edit-chapter', 'editChapterModal')->name('edit-chapter');
-            Route::post('/chapter/{chapter}/edit-chapter', 'updateChapterModal')->name('update-chapter');
+            Route::get('/chapter/{chapter}/edit-chapter', 'editChapter')->name('edit-chapter');
+            Route::post('/chapter/{chapter}/edit-chapter', 'updateChapter')->name('update-chapter');
             Route::delete('/chapter/{chapter}', 'destroyChapter')->name('destroy-chapter');
         });
+       //route untuk quizzes
+       Route::resource('quizzes', QuizController::class);
+       Route::resource('quizzes/{quiz}/questions', QuestionController::class);
+       Route::resource('quizzes/{quiz}/questions/{question}/options', QuestionOptionController::class);
 
+       //route untuk quizzes
+       Route::get('/quizzes/{quiz}/showQuestion/{id}', [QuizController::class, 'showQuestion'])->name('quizzes.showQuestion');
+       // Route untuk QuizAttemptController
+       Route::post('/quizzes/{quiz}/start', [QuizAttemptController::class, 'start'])->name('quizzes.attempt.start');
+       Route::get('/quizzes/{quiz}/attempt/{attempt}', [QuizAttemptController::class, 'show'])->name('quizzes.attempt.show');
+       Route::post('/quizzes/{quiz}/attempt/{attempt}/submit', [QuizAttemptController::class, 'submit'])->name('quizzes.attempt.submit');
+       Route::get('/quizzes/{quiz}/attempt/{attempt}/results', [QuizAttemptController::class, 'results'])->name('quizzes.attempt.results');
+        // Quiz Monitoring
+        Route::prefix('quizzes/monitoring')->name('quizzes.monitoring.')->group(function () {
+            Route::get('performance', [QuizMonitoringController::class, 'performance'])->name('performance');
+            Route::get('completion', [QuizMonitoringController::class, 'completion'])->name('completion');
+        });
         // Course Video Routes
         Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
             Route::get('/{course}/add/video', 'create')->name('create.video');
@@ -87,6 +108,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/video/{course_video}', 'update')->name('update.video');
             Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
         });
+
+        // TEACHER Quiz Routes
+        Route::resource('quizzes', QuizController::class); // GUNAKAN RESOURCE ROUTE
     });
 
     // Employee Routes

@@ -263,7 +263,8 @@ class CourseController extends Controller
     }
 
     // Logic Untuk Chapter
-    public function createChapterModal(Course $course)
+    // Logic Untuk Chapter
+    public function createChapter(Course $course)
     {
         // Authorization: Ensure the teacher owns the course.
         if (Auth::user()->hasRole('teacher') && $course->teacher->user_id != Auth::user()->id) {
@@ -274,7 +275,7 @@ class CourseController extends Controller
 
     public function storeChapter(Request $request, Course $course)
     {
-          // Authorization: Ensure the teacher owns the course.
+        // Authorization: Ensure the teacher owns the course.
         if (Auth::user()->hasRole('teacher') && $course->teacher->user_id != Auth::user()->id) {
             abort(403, 'Unauthorized action.');
         }
@@ -295,43 +296,42 @@ class CourseController extends Controller
             'slug' => Str::slug($request->name)
         ]);
 
-
         return redirect()->route('admin.courses.show', $course)->with('success', 'Chapter created successfully');
     }
 
-    public function editChapterModal(Chapter $chapter)
+    public function editChapter(Chapter $chapter)
     {
-         // Authorization: Ensure the teacher owns the course.
+        // Authorization: Ensure the teacher owns the course.
         if (Auth::user()->hasRole('teacher') && $chapter->course->teacher->user_id != Auth::user()->id) {
             abort(403, 'Unauthorized action.');
         }
         return view('admin.courses.edit-chapter', compact('chapter'));
     }
 
-    public function updateChapter(Request $request, Chapter $chapter)  // Corrected method name
-{
-    // Authorization: Ensure the teacher owns the course.
-    if (Auth::user()->hasRole('teacher') && $chapter->course->teacher->user_id != Auth::user()->id) {
-        abort(403, 'Unauthorized action.');
+    public function updateChapter(Request $request, Chapter $chapter)
+    {
+        // Authorization: Ensure the teacher owns the course.
+        if (Auth::user()->hasRole('teacher') && $chapter->course->teacher->user_id != Auth::user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'name' => 'required|string',
+            'order' => 'nullable|integer|min:0',
+        ]);
+
+        $chapter->update([
+            'name' => $request->name,
+            'order' => $request->order,
+            'slug' => Str::slug($request->name)
+        ]);
+
+        return redirect()->route('admin.courses.show', $chapter->course)->with('success', 'Chapter updated successfully');
     }
-
-    $request->validate([
-        'name' => 'required|string',
-        'order' => 'nullable|integer|min:0',
-    ]);
-
-    $chapter->update([
-        'name' => $request->name,
-        'order' => $request->order,
-        'slug' => Str::slug($request->name)
-    ]);
-
-    return redirect()->route('admin.courses.show', $chapter->course)->with('success', 'Chapter updated successfully');
-}
 
     public function destroyChapter(Chapter $chapter)
     {
-         // Authorization: Ensure the teacher owns the course.
+        // Authorization: Ensure the teacher owns the course.
         if (Auth::user()->hasRole('teacher') && $chapter->course->teacher->user_id != Auth::user()->id) {
             abort(403, 'Unauthorized action.');
         }
@@ -339,15 +339,20 @@ class CourseController extends Controller
 
         // Delete associated videos FIRST.
         foreach ($chapter->videos as $video) {
-             if ($video->path_video && Storage::disk('public')->exists($video->path_video)) {
-                  Storage::disk('public')->delete($video->path_video);
-             }
+            if ($video->path_video && Storage::disk('public')->exists($video->path_video)) {
+                Storage::disk('public')->delete($video->path_video);
+            }
             $video->delete();
         }
 
         $chapter->delete();
 
         return redirect()->route('admin.courses.show', $course)->with('success', 'Chapter deleted successfully');
+    }
+
+    public function showChapter(Course $course)
+    {
+        return view('admin.courses.show', compact('course'));
     }
 
     // Employee Enroll logic

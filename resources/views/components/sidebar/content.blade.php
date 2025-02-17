@@ -29,6 +29,13 @@
                     </x-slot>
                     <x-sidebar.sublink title="Teachers" href="{{ route('admin.teachers.index') }}" :isActive="Str::startsWith($currentRouteName, 'admin.teachers.')" />
                 </x-sidebar.dropdown>
+                <x-sidebar.dropdown title="Quiz Monitoring" :isActive="Str::startsWith($currentRouteName, 'admin.quizzes.monitoring.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-chart-bar class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" />
+                    </x-slot>
+                    <x-sidebar.sublink title="Quiz Performance" href="{{ route('admin.quizzes.monitoring.performance') }}" :isActive="$currentRouteName == 'admin.quizzes.monitoring.performance'" />
+                    <x-sidebar.sublink title="Quiz Completion" href="{{ route('admin.quizzes.monitoring.completion') }}" :isActive="$currentRouteName == 'admin.quizzes.monitoring.completion'" />
+                </x-sidebar.dropdown>
             </div>
             <hr class="border-gray-200 dark:border-gray-700"> {{-- Dark mode border color for hr --}}
         @endif
@@ -48,6 +55,13 @@
                     </x-slot>
                     <x-sidebar.sublink title="My Courses" href="{{ route('admin.courses.index') }}" :isActive="Str::startsWith($currentRouteName, 'teacher.courses.')" />
                     <x-sidebar.sublink title="Categories" href="{{ route('admin.categories.index') }}" :isActive="Str::startsWith($currentRouteName, 'teacher.categories.')" />
+                </x-sidebar.dropdown>
+                <x-sidebar.dropdown title="Quiz Management" :isActive="Str::startsWith($currentRouteName, 'teacher.quizzes.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-question-mark-circle class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" />
+                    </x-slot>
+                    <x-sidebar.sublink title="All Quizzes" href="{{ route('admin.quizzes.index') }}" :isActive="$currentRouteName == 'admin.quizzes.index'" />
+                    <x-sidebar.sublink title="Create Quiz" href="{{ route('admin.quizzes.create') }}" :isActive="$currentRouteName == 'admin.quizzes.create'" />
                 </x-sidebar.dropdown>
             </div>
             <hr class="border-gray-200 dark:border-gray-700"> {{-- Dark mode border color for hr --}}

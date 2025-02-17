@@ -1,243 +1,355 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-row justify-between items-center">
+        <div class="md:flex md:flex-row md:justify-between md:items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Courses Details') }}
+                {{ __('Course Details') }}
             </h2>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-10 flex flex-col gap-y-5">
-                <div class="item-card flex flex-row gap-y-10 justify-between items-center">
-                    <div class="flex flex-row items-center gap-x-3">
-                        <img src="{{ Storage::url($course->thumbnail) }}" alt="{{ $course->name }}" class="rounded-2xl object-cover w-[200px] h-[150px]">
-                        <div class="flex flex-col">
-                            <h3 class="text-indigo-950 text-xl font-bold">{{ $course->name }}</h3>
-                            <p class="text-slate-500 text-sm">{{ $course->category->name }}</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col">
-                        <p class="text-slate-500 text-sm">Students</p>
-                        <h3 class="text-indigo-950 text-xl font-bold">{{ $course->employees->count() }}</h3>
-                    </div>
-                     <div class="flex flex-row items-center gap-x-3">
-                        @role('admin|teacher')
-                             <a href="{{ route('admin.courses.edit', $course) }}" class="font-bold py-4 px-6 bg-indigo-700 text-white rounded-full">
-                                 Edit Course
-                            </a>
-                         @endrole
-                         @role('admin')
-                            <form action="{{ route('admin.courses.destroy', $course) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="font-bold py-4 px-6 bg-red-700 text-white rounded-full">
-                                    Delete
-                                </button>
-                            </form>
-                         @endrole
-                      </div>
-                </div>
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-md rounded-lg">
+                <div class="p-6 sm:p-10">
 
-                <hr class="my-5">
-                <div class="space-y-6">  <!-- Use space-y for vertical spacing -->
-                    <div class="flex flex-col md:flex-row justify-between items-center">
-                        <div class="flex flex-col">
-                            <h3 class="text-indigo-950 text-xl font-bold">Course Content</h3>
-                            <p class="text-slate-500 text-sm">Manage Your Chapters & Videos</p>  <!-- Corrected typo -->
-                        </div>
-
-                        @role('admin|teacher')
-                        <button onclick="document.getElementById('create-chapter-modal').showModal()" class="mt-4 md:mt-0 font-bold py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition duration-200">  <!-- Added mt for spacing on small screens, hover effect, and transition -->
-                            Add New Chapter
-                        </button>
-                        @endrole
-                    </div>
-
-                    @forelse ($course->chapters as $chapter)
-                    <div class="bg-white rounded-lg shadow-md p-6"> <!-- Added shadow and padding to the card -->
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-y-2 sm:gap-y-0">
-                             <!-- Responsive layout for chapter info and actions -->
-                            <div class="flex flex-row items-center gap-x-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-indigo-600"> <!-- Added color to the icon -->
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 20.25 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.077 1.947l-4.894 2.894a1.5 1.5 0 0 1-1.232 0l-4.894-2.894A2.25 2.25 0 0 1 2.25 6.993V6.75" />
-                                </svg>
-                                <h3 class="text-indigo-900 text-lg font-bold">{{ $chapter->name }}</h3> <!-- Slightly less dark text -->
+                    <!-- Course Information -->
+                    <div class="mb-8">
+                        <div class="md:flex md:items-center md:justify-between">
+                            <div class="flex items-center mb-4 md:mb-0">
+                                <img src="{{ Storage::url($course->thumbnail) }}" alt="{{ $course->name }}"
+                                    class="w-24 h-20 object-cover rounded-lg shadow-sm mr-4 transition-transform transform hover:scale-105">
+                                <div>
+                                    <h2
+                                        class="text-2xl font-semibold text-gray-900 transition-colors hover:text-indigo-600">
+                                        {{ $course->name }}</h2>
+                                    <p class="text-gray-600 text-sm transition-colors hover:text-indigo-500">
+                                        {{ $course->category->name }}</p>
+                                </div>
                             </div>
-                            <div class="flex flex-row items-center gap-x-3">
+
+                            <div class="flex items-center space-x-4">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Students</p>
+                                    <h3 class="text-xl font-bold text-gray-900">{{ $course->employees->count() }}</h3>
+                                </div>
+
                                 @role('admin|teacher')
-                                <button onclick="document.getElementById('edit-chapter-modal-{{$chapter->id}}').showModal()" class="font-bold py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition duration-200"> <!-- Consistent button style -->
-                                    Edit
-                                </button>
-                                <form method="POST" action="{{ route('admin.courses.destroy-chapter', $chapter) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="font-bold py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-full transition duration-200" onclick="return confirm('Are you sure you want to delete this chapter?')"> <!-- Consistent button style -->
-                                        Delete
-                                    </button>
-                                </form>
+                                    <a href="{{ route('admin.courses.edit', $course) }}"
+                                        class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-sm transition duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v5h-5l8.322-8.322" />
+                                        </svg>
+                                        Edit Course
+                                    </a>
+                                @endrole
+                                @role('admin')
+                                    <form action="{{ route('admin.courses.destroy', $course) }}" method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this course?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold text-sm transition duration-200">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.913-2.132-2.096-2.188a48.107 48.107 0 00-3.475-.32m-11.8 0v-.916c0-1.18.913-2.132-2.096-2.188a48.107 48.107 0 003.475-.32m0 0a50.667 50.667 0 01-9.432 2.533L5.16 17.576a2.25 2.25 0 012.244 2.077h11.324a2.25 2.25 0 012.244-2.077L18.838 7.533z" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </form>
                                 @endrole
                             </div>
                         </div>
+                    </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            @forelse($chapter->videos as $video)
-                            <div class="bg-white rounded-lg shadow overflow-hidden">
-                                <div class="relative w-full aspect-video">
-                                   <iframe width="100%" height="100%" class="absolute inset-0" src="https://www.youtube-nocookie.com/embed/{{ $video->path_video }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-semibold text-gray-800">{{ $video->name }}</h3>
-                                    <p class="text-sm text-gray-500 mb-1">{{ $video->course->name }}</p>
-                                    <p class="text-xs text-gray-600">Durasi: {{ $video->duration ?? 'N/A' }}</p>  {{-- Asumsikan ada properti 'duration' --}}
-                                    <p class="text-sm text-gray-700 mt-2 line-clamp-2">{{ $video->description ?? '' }}</p>  {{-- Deskripsi singkat --}}
+                    <hr class="my-6 border-gray-300">
 
-                                    @role('admin|teacher')
-                                    <div class="mt-4 flex space-x-2">
-                                        <a href="{{ route('admin.courses.videos.edit', ['course' => $course, 'video' => $video]) }}" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition duration-200 flex-grow text-center">Edit</a>
-                                        <form method="POST" action="{{ route('admin.courses.videos.destroy', ['course' => $course, 'video' => $video]) }}" >
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition duration-200" onclick="return confirm('Are you sure you want to delete this video?')">
-                                              <svg class="w-4 h-4 inline-block" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                    @endrole
-                                </div>
+                    <!-- Course Content Management -->
+                    <div>
+                        <div class="md:flex md:items-center md:justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900 transition-colors hover:text-indigo-600">
+                                    Course Content</h3>
+                                <p class="text-gray-500 text-sm transition-colors hover:text-indigo-500">Manage
+                                    Chapters, Videos & Quizzes</p>
                             </div>
+                            @role('admin|teacher')
+                                <a href="{{ route('admin.courses.create-chapter', $course) }}"
+                                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold text-sm transition duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    Add New Chapter
+                                </a>
+                            @endrole
+                        </div>
+
+                        <!-- Chapters List -->
+                        <div class="space-y-4">
+                            @forelse ($course->chapters as $chapter)
+                                <div
+                                    class="bg-gray-50 rounded-lg shadow-sm p-4 hover:shadow-md transition duration-200">
+                                    <div class="md:flex md:items-center md:justify-between">
+                                        <div class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor"
+                                                class="w-5 h-5 text-blue-500 mr-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                                            </svg>
+                                            <h4
+                                                class="text-lg font-semibold text-gray-800 transition-colors hover:text-indigo-600">
+                                                {{ $chapter->name }}</h4>
+                                        </div>
+
+                                        <div class="mt-2 md:mt-0 flex items-center space-x-2">
+                                            @role('admin|teacher')
+                                                <a href="{{ route('admin.courses.edit-chapter', $chapter) }}"
+                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition duration-200">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-4 h-4 mr-2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v5h-5l8.322-8.322" />
+                                                    </svg>
+                                                    Edit
+                                                </a>
+                                                <form method="POST"
+                                                    action="{{ route('admin.courses.destroy-chapter', $chapter) }}"
+                                                    onsubmit="return confirm('Are you sure you want to delete this chapter?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition duration-200">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                            class="w-4 h-4 mr-2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.913-2.132-2.096-2.188a48.107 48.107 0 00-3.475-.32m-11.8 0v-.916c0-1.18.913-2.132-2.096-2.188a48.107 48.107 0 003.475-.32m0 0a50.667 50.667 0 01-9.432 2.533L5.16 17.576a2.25 2.25 0 012.244 2.077h11.324a2.25 2.25 0 012.244-2.077L18.838 7.533z" />
+                                                        </svg>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            @endrole
+                                        </div>
+                                    </div>
+
+                                    <!-- Content Tabs -->
+                                    <div class="border-b border-gray-200 mb-4">
+                                        <nav class="-mb-px flex space-x-6">
+                                            <button
+                                                class="tab-button border-blue-500 text-blue-600 whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm"
+                                                data-tab="videos-{{ $chapter->id }}">
+                                                Videos
+                                            </button>
+                                            <button
+                                                class="tab-button border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm"
+                                                data-tab="quizzes-{{ $chapter->id }}">
+                                                Quizzes
+                                            </button>
+                                        </nav>
+                                    </div>
+
+                                    <!-- Videos Content -->
+                                    <div id="videos-{{ $chapter->id }}" class="tab-content">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            @forelse($chapter->videos as $video)
+                                                <div
+                                                    class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200">
+                                                    <div class="relative w-full aspect-video">
+                                                        <iframe width="100%" height="100%"
+                                                            class="absolute inset-0"
+                                                            src="https://www.youtube-nocookie.com/embed/{{ $video->path_video }}"
+                                                            title="YouTube video player" frameborder="0"
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                            referrerpolicy="strict-origin-when-cross-origin"
+                                                            allowfullscreen></iframe>
+                                                    </div>
+                                                    <div class="p-3">
+                                                        <h5
+                                                            class="text-md font-semibold text-gray-900 transition-colors hover:text-indigo-600">
+                                                            {{ $video->name }}</h5>
+                                                        <p class="text-gray-600 text-xs mb-1">
+                                                            {{ $video->course->name }}</p>
+                                                        <p class="text-gray-500 text-xs">Duration:
+                                                            {{ $video->duration ?? 'N/A' }}</p>
+                                                        <p class="text-gray-700 text-sm mt-2 line-clamp-2">
+                                                            {{ $video->description ?? '' }}</p>
+
+                                                        @role('admin|teacher')
+                                                            <div class="mt-3 flex space-x-2">
+                                                                <a href="{{ route('admin.courses.videos.edit', ['course' => $course, 'video' => $video]) }}"
+                                                                    class="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition duration-200">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                        viewBox="0 0 24 24" stroke-width="1.5"
+                                                                        stroke="currentColor" class="w-4 h-4 mr-2">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
+                                                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v5h-5l8.322-8.322" />
+                                                                    </svg>
+                                                                    Edit
+                                                                </a>
+                                                                <form method="POST"
+                                                                    action="{{ route('admin.courses.videos.destroy', ['course' => $course, 'video' => $video]) }}"
+                                                                    onsubmit="return confirm('Are you sure you want to delete this video?')">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition duration-200">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="1.5" stroke="currentColor"
+                                                                            class="w-4 h-4 mr-2">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.913-2.132-2.096-2.188a48.107 48.107 0 00-3.475-.32m-11.8 0v-.916c0-1.18.913-2.132-2.096-2.188a48.107 48.107 0 003.475-.32m0 0a50.667 50.667 0 01-9.432 2.533L5.16 17.576a2.25 2.25 0 012.244 2.077h11.324a2.25 2.25 0 012.244-2.077L18.838 7.533z" />
+                                                                        </svg>
+                                                                        Delete
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        @endrole
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <p class="text-gray-500 col-span-full text-center">No videos in this
+                                                    chapter yet.</p>
+                                            @endforelse
+                                        </div>
+                                        @role('admin|teacher')
+                                            <div class="mt-4 text-right">
+                                                <a href="{{ route('admin.courses.create.video', ['course' => $course->id]) }}"
+                                                    class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-semibold text-sm transition duration-200">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-4 h-4 mr-2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M12 4.5v15m7.5-7.5h-15" />
+                                                    </svg>
+                                                    Add Video
+                                                </a>
+                                            </div>
+                                        @endrole
+                                    </div>
+
+                                    <!-- Quizzes Content -->
+                                    <div id="quizzes-{{ $chapter->id }}" class="tab-content hidden">
+                                        <div class="space-y-4">
+                                            @forelse($chapter->quizzes as $quiz)
+                                                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                                                    <div class="p-4">
+                                                        <div class="flex justify-between items-start">
+                                                            <div>
+                                                                <h5
+                                                                    class="text-md font-semibold text-gray-900 transition-colors hover:text-indigo-600">
+                                                                    {{ $quiz->title }}</h5>
+                                                                <div class="mt-1 text-sm text-gray-500">
+                                                                    <p>Questions: {{ $quiz->questions()->count() }}</p>
+                                                                    <p>Duration: {{ $quiz->duration }} minutes</p>
+                                                                    <p>Passing Score: {{ $quiz->passing_score }}%</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex space-x-2">
+                                                                @role('admin|teacher')
+                                                                    <a href="{{ route('admin.quizzes.edit', $quiz->id) }}"
+                                                                        class="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition duration-200">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="1.5" stroke="currentColor"
+                                                                            class="w-4 h-4 mr-2">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v5h-5l8.322-8.322" />
+                                                                        </svg>
+                                                                        Edit
+                                                                    </a>
+                                                                    <form method="POST"
+                                                                        action="{{ route('admin.quizzes.destroy', $quiz->id) }}"
+                                                                        onsubmit="return confirm('Are you sure?')">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit"
+                                                                            class="inline-flex items-center px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition duration-200">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none" viewBox="0 0 24 24"
+                                                                                stroke-width="1.5" stroke="currentColor"
+                                                                                class="w-4 h-4 mr-2">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.913-2.132-2.096-2.188a48.107 48.107 0 00-3.475-.32m-11.8 0v-.916c0-1.18.913-2.132-2.096-2.188a48.107 48.107 0 003.475-.32m0 0a50.667 50.667 0 01-9.432 2.533L5.16 17.576a2.25 2.25 0 012.244 2.077h11.324a2.25 2.25 0 012.244-2.077L18.838 7.533z" />
+                                                                            </svg>
+                                                                            Delete
+                                                                        </button>
+                                                                    </form>
+                                                                @else
+                                                                    <a href="{{ route('quizzes.attempt.start', $quiz->id) }}"
+                                                                        class="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition duration-200">
+                                                                        Take Quiz
+                                                                    </a>
+                                                                @endrole
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <p class="text-gray-500 text-center">No quizzes in this chapter yet.
+                                                </p>
+                                            @endforelse
+                                        </div>
+                                        @role('admin|teacher')
+                                            <div class="mt-4 text-right">
+                                                <a href="{{ route('admin.quizzes.create') }}"
+                                                    class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-semibold text-sm transition duration-200">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-4 h-4 mr-2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M12 4.5v15m7.5-7.5h-15" />
+                                                    </svg>
+                                                    Add Quiz
+                                                </a>
+                                            </div>
+                                        @endrole
+                                    </div>
+                                </div>
                             @empty
-                            <p class="text-gray-500 col-span-full text-center">No videos in this chapter yet.</p>
+                                <p class="text-gray-500 text-center">No chapters yet.</p>
                             @endforelse
                         </div>
-
-                        <div class="flex justify-end mt-4">
-                            <a href="{{ route('admin.courses.create.video', $course->id ) }}" class="font-bold py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition duration-200"> <!-- Consistent button style -->
-                                Add Video
-                            </a>
-                        </div>
                     </div>
-                    @empty
-                    <p class="text-gray-500">No Chapters yet.</p>
-                    @endforelse
 
-                    <!-- Modal Create chapter -->
-                    <dialog id="create-chapter-modal" class="modal">
-                        <div class="modal-box bg-white rounded-lg shadow-lg p-8">  <!-- Added styling to the modal-box -->
-                             <form method="dialog" class="absolute top-2 right-2">
-                               <!-- Close Button -->
-                                <button class="btn btn-sm btn-circle btn-ghost">✕</button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.courses.store-chapter', $course) }}" class="space-y-6"> <!-- Using space-y for consistent spacing -->
-                                @csrf
-                                <h3 class="font-bold text-lg text-indigo-900">Create New Chapter</h3>  <!-- Consistent heading style -->
-
-                                <div>
-                                    <label for="name" class="block text-sm font-medium text-gray-700">Chapter Name</label>
-                                    <input type="text" name="name" id="name" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">  <!-- Consistent input style -->
-                                </div>
-
-                                <div>
-                                    <label for="order" class="block text-sm font-medium text-gray-700">Order</label>
-                                    <input type="number" name="order" id="order" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">  <!-- Consistent input style -->
-                                </div>
-
-                                <div class="mt-6"> <!--  Add spacing before buttons -->
-                                     <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-200 ease-in-out">  <!-- Consistent button style -->
-                                        Save Chapter
-                                    </button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </dialog>
-                    <!-- end modal -->
-
-                    <!-- Modal Edit chapter -->
-                    @foreach ($course->chapters as $chapter)
-                    <dialog id="edit-chapter-modal-{{$chapter->id}}" class="modal">
-                        <div class="modal-box bg-white rounded-lg shadow-lg p-8">  <!-- Added styling to modal-box -->
-                           <form method="dialog" class="absolute top-2 right-2">
-                               <!-- Close Button -->
-                                <button class="btn btn-sm btn-circle btn-ghost">✕</button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.courses.update-chapter', $chapter) }}" class="space-y-6"> <!--  Using space-y for consistent spacing -->
-                                @csrf
-                                @method('PUT')  <!-- Use PUT for updates -->
-                                <h3 class="font-bold text-lg text-indigo-900">Edit Chapter</h3> <!-- Consistent heading style -->
-
-                                <div>
-                                    <label for="name" class="block text-sm font-medium text-gray-700">Chapter Name</label>
-                                    <input type="text" name="name" id="name" required value="{{ $chapter->name }}" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">  <!-- Consistent input style -->
-                                </div>
-
-                                <div>
-                                    <label for="order" class="block text-sm font-medium text-gray-700">Order</label>
-                                    <input type="number" name="order" id="order" value="{{ $chapter->order }}" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">  <!-- Consistent input style -->
-                                </div>
-
-                                 <div class="mt-6">
-                                    <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-200 ease-in-out">  <!-- Consistent button style -->
-                                        Save Changes
-                                    </button>
-
-                                </div>
-
-                            </form>
-                        </div>
-                    </dialog>
-                    @endforeach
                 </div>
-                 {{-- Modal Create chapter --}}
-                    <dialog id="create-chapter-modal" class="modal">
-                        <div class="modal-box">
-                            <form method="POST" action="{{ route('admin.courses.store-chapter', $course) }}" class="flex flex-col gap-y-4">
-                                @csrf
-                                <h3 class="font-bold text-lg mb-4">Create New Chapter</h3>
-                                <div>
-                                    <label for="name" class="block font-medium text-gray-700 dark:text-gray-300 mb-2">Chapter Name</label>
-                                    <input type="text" name="name" id="name" required class="w-full px-4 py-2 border rounded focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-gray-100">
-                                </div>
-
-                                <div>
-                                    <label for="order" class="block font-medium text-gray-700 dark:text-gray-300 mb-2">Order</label>
-                                    <input type="number" name="order" id="order"  class="w-full px-4 py-2 border rounded focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-gray-100">
-                                 </div>
-
-                                <div class="modal-action">
-                                  <button type="submit" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">Save Chapter</button>
-                                 <button onclick="document.getElementById('create-chapter-modal').close()" type="button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Close</button>
-                              </div>
-                         </form>
-                    </div>
-                 </dialog>
-                    {{-- end modal --}}
-                 {{-- Modal Edit chapter --}}
-                  @foreach ($course->chapters as $chapter)
-                     <dialog id="edit-chapter-modal-{{$chapter->id}}" class="modal">
-                        <div class="modal-box">
-                           <form method="POST" action="{{ route('admin.courses.update-chapter', $chapter) }}" class="flex flex-col gap-y-4">
-                              @csrf
-                                <h3 class="font-bold text-lg mb-4">Edit Chapter</h3>
-                                  <div class="mb-4">
-                                    <label for="name" class="block font-medium text-gray-700 dark:text-gray-300 mb-2">Chapter Name</label>
-                                    <input type="text" name="name" id="name" required value="{{$chapter->name}}" class="w-full px-4 py-2 border rounded focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-gray-100">
-                              </div>
-                                <div class="mb-4">
-                                   <label for="order" class="block font-medium text-gray-700 dark:text-gray-300 mb-2">Order</label>
-                                   <input type="number" name="order" id="order" class="w-full px-4 py-2 border rounded focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-gray-100" value="{{$chapter->order}}">
-                                </div>
-                             <div class="modal-action">
-                                  <button type="submit" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">Save Changes</button>
-                                <button onclick="document.getElementById('edit-chapter-modal-{{$chapter->id}}').close()"  type="button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Close</button>
-                            </div>
-                           </form>
-                        </div>
-                    </dialog>
-                   @endforeach
-                   {{-- end modal --}}
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    const chapter = this.closest('.bg-gray-50');
+
+                    // Update tab buttons
+                    chapter.querySelectorAll('.tab-button').forEach(btn => {
+                        btn.classList.remove('border-blue-500', 'text-blue-600');
+                        btn.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+
+                    // Update content visibility
+                    chapter.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(tabId).classList.remove('hidden');
+                });
+            });
+        });
+    </script>
 </x-app-layout>
