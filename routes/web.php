@@ -21,10 +21,9 @@ use App\Http\Controllers\QuizMonitoringController;
 
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
-Route::get('/category', [FrontendController::class, 'category'])->name('frontend.pages.category');
-Route::get('/category/{category:slug}', [FrontendController::class, 'categoryDetail'])->name('frontend.pages.category-detail');
-Route::get('/courses/{slug}', [FrontendController::class, 'indexCourse'])->name('frontend.pages.course-detail');
-
+Route::get('/category', [FrontendController::class, 'Category'])->name('frontend.pages.category');
+Route::get('/category/{category:slug}', [FrontendController::class, 'CategoryDetail'])->name('frontend.pages.category-detail');
+Route::get('/courses/{course:slug}', [FrontendController::class, 'CourseDetail'])->name('frontend.pages.course-detail');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -69,22 +68,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/chapter/{chapter}/edit-chapter', 'updateChapter')->name('update-chapter');
             Route::delete('/chapter/{chapter}', 'destroyChapter')->name('destroy-chapter');
         });
-       //route untuk quizzes
-       Route::resource('quizzes', QuizController::class);
-       Route::resource('quizzes/{quiz}/questions', QuestionController::class);
-       Route::resource('quizzes/{quiz}/questions/{question}/options', QuestionOptionController::class);
+        //route untuk quizzes
+        Route::resource('quizzes', QuizController::class)->except(['show']);
+        Route::resource('quizzes/{quiz}/questions', QuestionController::class);
+        Route::resource('quizzes/{quiz}/questions/{question}/options', QuestionOptionController::class);
 
        //route untuk quizzes
        Route::get('/quizzes/{quiz}/showQuestion/{id}', [QuizController::class, 'showQuestion'])->name('quizzes.showQuestion');
-       // Route untuk QuizAttemptController
-       Route::post('/quizzes/{quiz}/start', [QuizAttemptController::class, 'start'])->name('quizzes.attempt.start');
-       Route::get('/quizzes/{quiz}/attempt/{attempt}', [QuizAttemptController::class, 'show'])->name('quizzes.attempt.show');
-       Route::post('/quizzes/{quiz}/attempt/{attempt}/submit', [QuizAttemptController::class, 'submit'])->name('quizzes.attempt.submit');
-       Route::get('/quizzes/{quiz}/attempt/{attempt}/results', [QuizAttemptController::class, 'results'])->name('quizzes.attempt.results');
+      // Percobaan Kuis (Quiz Attempts) - Fokus Utama untuk Admin
+      Route::get('/quizzes/{quiz}/start', [QuizAttemptController::class, 'adminStart'])
+      ->name('quizzes.attempt.start'); // Admin memulai kuis
+      Route::get('/quizzes/{quiz}/attempt/{attempt}', [QuizAttemptController::class, 'show'])->name('quizzes.attempt.show'); // Menampilkan kuis yang sedang berjalan (pertanyaan)
+      Route::post('/quizzes/{quiz}/attempt/{attempt}/submit', [QuizAttemptController::class, 'submit'])->name('quizzes.attempt.submit'); // Submit jawaban
+      Route::get('/quizzes/{quiz}/attempt/{attempt}/results', [QuizAttemptController::class, 'results'])->name('quizzes.attempt.results'); // Hasil kuis
+      Route::post('/quizzes/{quiz}/attempt/{attempt}/finalize', [QuizAttemptController::class, 'finalize'])->name('quizzes.attempt.finalize'); //Finalisasi jawaban
+      Route::get('/quizzes/admin-start', [QuizController::class, 'showQuizzesToStart'])->name('quizzes.admin_start'); // Daftar kuis untuk admin
+      Route::get('/quizzes/{quiz}/question/{id}', [QuizController::class, 'showQuestion'])->name('quizzes.question.show'); // Menampilkan pertanyaan
         // Quiz Monitoring
         Route::prefix('quizzes/monitoring')->name('quizzes.monitoring.')->group(function () {
             Route::get('performance', [QuizMonitoringController::class, 'performance'])->name('performance');
             Route::get('completion', [QuizMonitoringController::class, 'completion'])->name('completion');
+            Route::get('user-attempts', [QuizMonitoringController::class, 'userAttempts'])->name('user-attempts'); // Route baru
         });
         // Course Video Routes
         Route::controller(CourseVideoController::class)->name('courses.')->group(function () {

@@ -4,49 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class QuizMonitoringController extends Controller
 {
-    public function performance()
+    public function performance() // Method Performance yang lebih sederhana
     {
-        try {
-            $performanceStats = QuizAttempt::with(['quiz', 'user'])
-                ->select(
-                    'quiz_id',
-                    DB::raw('AVG(score) as average_score'),
-                    DB::raw('COUNT(*) as total_attempts'),
-                    DB::raw('COUNT(CASE WHEN status = "passed" THEN 1 END) as passed_count')
-                )
-                ->groupBy('quiz_id')
-                ->paginate(10);
+        $totalQuizzes = Quiz::count();
+        $totalAttempts = QuizAttempt::count();
+        $averageScore = QuizAttempt::avg('score') ?? 0;
+        $passingRate = ($totalAttempts > 0) ? (QuizAttempt::where('status', 'passed')->count() / $totalAttempts) * 100 : 0;
 
-            return view('quiz-monitoring.performance', compact('performanceStats'));
-        } catch (\Exception $e) {
-            Log::error('Error in QuizMonitoringController@performance: ' . $e->getMessage());
-            return back()->with('error', 'An error occurred while loading quiz performance data.');
-        }
+        return view('admin.quizzes.monitoring.performance', compact(
+            'totalQuizzes',
+            'totalAttempts',
+            'averageScore',
+            'passingRate'
+        ));
     }
 
-    public function completion()
+    public function completion() // Method Completion yang lebih sederhana
+    {
+        $completedQuizzesCount = User::whereHas('quizAttempts', function ($query) {
+            $query->whereNotNull('completed_at');
+        })->count();
+
+        $mostAttemptedQuiz = QuizAttempt::select('quiz_id', DB::raw('COUNT(*) as total_attempts'))
+            ->groupBy('quiz_id')
+            ->orderByDesc('total_attempts')
+            ->first();
+
+        $leastAttemptedQuiz = QuizAttempt::select('quiz_id', DB::raw('COUNT(*) as total_attempts'))
+            ->groupBy('quiz_id')
+            ->orderBy('total_attempts')
+            ->first();
+
+
+        return view('admin.quizzes.monitoring.completion', compact(
+            'completedQuizzesCount',
+            'mostAttemptedQuiz',
+            'leastAttemptedQuiz'
+        ));
+    }
+    public function userAttempts()
     {
         try {
-            $completionStats = Quiz::withCount([
-                'attempts',
-                'attempts as completed_count' => function ($query) {
-                    $query->whereNotNull('completed_at');
-                },
-                'attempts as passed_count' => function ($query) {
-                    $query->where('status', 'passed');
-                }
-            ])->paginate(10);
+            $userQuizAttempts = User::with(['quizAttempts' => function ($query) {
+                    $query->with('quiz') // Eager load quiz relation
+                        ->orderBy('created_at', 'desc'); // Order attempts by latest first
+                }])
+                ->get();
 
-            return view('quiz-monitoring.completion', compact('completionStats'));
+            return view('admin.quizzes.monitoring.user_attempts', compact('userQuizAttempts'));
         } catch (\Exception $e) {
-            Log::error('Error in QuizMonitoringController@completion: ' . $e->getMessage());
-            return back()->with('error', 'An error occurred while loading quiz completion data.');
+            Log::error('Error in QuizMonitoringController@userAttempts: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while loading user quiz attempt data.');
         }
     }
 }

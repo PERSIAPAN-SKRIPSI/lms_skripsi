@@ -15,8 +15,12 @@ class FrontendController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('children')->get(); // Eager load children
+        $categories = Category::whereNull('parent_id')
+            ->withCount('courses') // Eager load jumlah kursus (opsional)
+            ->get();
+
         $courses = Course::all(); //  Anda mungkin ingin membatasi atau mengurutkan ini
+
         return view('frontend.pages.index', [
             'categories' => $categories,
             'courses' => $courses,
@@ -26,13 +30,15 @@ class FrontendController extends Controller
     /**
      * Menampilkan halaman daftar kategori
      */
-     public function category()
+    public function Category()
     {
         // Ambil kategori induk saja, dengan jumlah kursus dan subkategorinya
         $categories = Category::withCount('courses')
-            ->with(['children' => function ($query) {
-                $query->withCount('courses'); // Eager load jumlah kursus untuk subkategori
-            }])
+            ->with([
+                'children' => function ($query) {
+                    $query->withCount('courses'); // Eager load jumlah kursus untuk subkategori
+                }
+            ])
             ->whereNull('parent_id') // Hanya kategori induk
             ->latest()
             ->paginate(12);
@@ -46,13 +52,15 @@ class FrontendController extends Controller
      * Menampilkan halaman detail kategori dengan daftar kursus yang tersedia dalam kategori tersebut
      *  dan juga sub kategorinya
      */
-    public function categoryDetail(string $categorySlug)
+    public function CategoryDetail(string $categorySlug)
     {
         try {
             // Coba ambil kategori berdasarkan slug, termasuk subkategori jika ada.
-            $category = Category::with(['children' => function($query) {
+            $category = Category::with([
+                'children' => function ($query) {
                     $query->withCount('courses'); // Hitung kursus di subkategori
-                }])
+                }
+            ])
                 ->where('slug', $categorySlug)
                 ->firstOrFail();
 
@@ -74,31 +82,37 @@ class FrontendController extends Controller
             abort(404, 'Category not found');
         }
     }
+    public function CourseDetail(Course $course)
+    {
+        $course->load([
+            'teacher.user',
+            'chapters.videos',
+            'keypoints',
+            'category'
+        ]);
 
+        // Hanya tampilkan teacher yang aktif
+        if ($course->teacher && !$course->teacher->is_active) {
+            $course->teacher = null;
+        }
 
+        $categories = Category::whereNull('parent_id')
+            ->withCount('courses')
+            ->get();
+
+        return view('frontend.pages.sections.course-detail', [
+            'course' => $course,
+            'categories' => $categories,
+        ]);
+    }
     /**
      * Menampilkan halaman detail kursus.
      */
-    public function showCourse(string $courseSlug)
-    {
-         try {
-            // Ambil kursus berdasarkan slug, dengan informasi teacher dan jumlah students.
-            $course = Course::with('teacher.user', 'category', 'chapters.lessons')
-                ->withCount('students')
-                ->where('slug', $courseSlug)
-                ->firstOrFail();
 
-            // Kirim data kursus ke view.
-            return view('frontend.pages.course-detail', compact('course'));
-
-        } catch (ModelNotFoundException $e) {
-           abort(404, 'Course not found');
-        }
-    }
 
     /**
- * Menampilkan halaman daftar subkategori (opsional).
- */
+     * Menampilkan halaman daftar subkategori (opsional).
+     */
     public function subcategory(string $categorySlug) // Ubah parameter menjadi slug
     {
         try {
@@ -114,7 +128,7 @@ class FrontendController extends Controller
 
 
             // return view('frontend.pages.subcategory', compact('category', 'subcategories')); // Ganti ke view yang benar
-             return view('frontend.pages.category-detail', compact('category', 'subcategories'));
+            return view('frontend.pages.category-detail', compact('category', 'subcategories'));
 
         } catch (ModelNotFoundException $e) {
             abort(404, 'Subcategory not found');

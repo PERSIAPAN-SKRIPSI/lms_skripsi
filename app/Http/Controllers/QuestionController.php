@@ -82,23 +82,26 @@ class QuestionController extends Controller
     public function update(Request $request, Quiz $quiz, Question $question)
     {
         try {
+            // Validasi input
             $request->validate([
                 'question' => 'required|string',
                 'question_type' => 'required|in:multiple_choice,essay',
             ]);
 
-            if ($question->quiz_id !== $quiz->id) {
+            // Pastikan pertanyaan ada dan terkait dengan quiz yang benar
+            if (!$question || $question->quiz_id !== $quiz->id) {
                 return back()->with('error', 'Pertanyaan tidak ditemukan dalam quiz ini.');
             }
 
             DB::beginTransaction();
 
-            $question->update([
-                'question' => $request->question,
-                'question_type' => $request->question_type
-            ]);
+            // Update pertanyaan
+            $question->question = $request->input('question');
+            $question->question_type = $request->input('question_type');
+            $question->save();
 
             DB::commit();
+
             return redirect()
                 ->route('admin.quizzes.questions.index', $quiz->id)
                 ->with('success', 'Pertanyaan berhasil diperbarui.');

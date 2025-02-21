@@ -69,12 +69,14 @@ class User extends Authenticatable
         return $this->hasOne(Teacher::class);
     }
 
+
     public function getAvatarUrlAttribute()
     {
         return Storage::url($this->avatar);
     }
      /**
      * Cek apakah user adalah PRO (employee)
+     *     // Attribute to get pro status maksudnya disini tanpa bayar jadi employee bebas memilih dan mempelajari coursess tersebut
      */
    /**
      * Check if user is an approved employee and thus PRO
@@ -84,7 +86,7 @@ class User extends Authenticatable
         return $this->employment_status === 'employee' && $this->is_approved;
     }
 
-    // Attribute to get pro status
+    // Attribute to get pro status maksudnya disini tanpa bayar jadi employee bebas memilih dan mempelajari coursess tersebut
     public function getProStatusAttribute(): string
     {
         if ($this->isPro()) {

@@ -96,7 +96,9 @@ class QuizController extends Controller
             }
 
             $courses = Course::with('chapters')->get();
-            return view('admin.quizzes.edit', compact('quiz', 'courses'));
+            // Ambil semua chapters untuk dropdown
+            $chapters = Chapter::all();
+            return view('admin.quizzes.edit', compact('quiz', 'courses', 'chapters'));
         } catch (\Exception $e) {
             Log::error('Error in QuizController@edit: ' . $e->getMessage());
             return back()->with('error', 'An error occurred while loading the edit quiz form.');
@@ -142,5 +144,83 @@ class QuizController extends Controller
             Log::error('Error in QuizController@destroy: ' . $e->getMessage());
             return back()->with('error', 'An error occurred while deleting the quiz.');
         }
+    }
+    public function show(Quiz $quiz)
+    {
+        try {
+            $user = Auth::user();
+
+            if ($user->hasRole('teacher') && $quiz->course->teacher_id !== $user->teacher->id) {
+                return back()->with('error', 'Unauthorized access.');
+            }
+
+            return view('admin.quizzes.show', compact('quiz'));
+        } catch (\Exception $e) {
+            Log::error('Error in QuizController@show: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while viewing the quiz.');
+        }
+    }
+    public function showQuizzesToStart()
+    {
+        $quizzes = Quiz::all(); // Ambil semua kuis (atau filter sesuai kebutuhan, misalnya berdasarkan course)
+
+        return view('admin.quizzes.admin_start', compact('quizzes'));
+    }
+
+    /**
+     * Memulai kuis untuk admin.
+     *
+     * @param  \App\Models\Quiz  $quiz
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function startQuiz(Quiz $quiz)
+    {
+        // Cari tahu apakah admin sudah pernah memulai kuis ini sebelumnya.
+        $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($existingAttempt) {
+            // Jika sudah ada, arahkan mereka ke tampilan yang sesuai (misalnya, melanjutkan kuis atau melihat hasil).
+            return redirect()->route('admin.quizzes.attempt.show', ['quiz' => $quiz->id, 'attempt' => $existingAttempt->id])
+                ->with('message', 'You have already started this quiz. Continue where you left off!');
+        }
+        // Buat QuizAttempt baru
+        $attempt = new QuizAttempt();
+        $attempt->quiz_id = $quiz->id;
+        $attempt->user_id = Auth::id();
+        $attempt->start_time = now(); // Waktu mulai kuis
+        $attempt->save();
+
+        // Redirect ke rute yang menampilkan pertanyaan pertama
+        return redirect()->route('admin.quizzes.showQuestion', ['quiz' => $quiz->id, 'id' => 1])->with('success', 'Quiz started successfully!');
+
+    }
+
+    public function showQuestion(Quiz $quiz, $id)
+    {
+        $question = $quiz->questions()->find($id);
+
+        if (!$question) {
+            return redirect()->back()->with('error', 'Pertanyaan tidak ditemukan.');
+        }
+
+        // Cari attempt aktif dari user yang sedang login
+        $attempt = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('user_id', Auth::id())
+            ->whereNull('completed_at')
+            ->first();
+
+        if (!$attempt) {
+            // Jika tidak ada attempt aktif, buat baru
+            $attempt = QuizAttempt::create([
+                'quiz_id' => $quiz->id,
+                'user_id' => Auth::id(),
+                'start_time' => now(),
+                'status' => 'in_progress'
+            ]);
+        }
+
+        return view('admin.quizzes.showQuestion', compact('quiz', 'question', 'attempt'));
     }
 }

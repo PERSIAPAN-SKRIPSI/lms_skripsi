@@ -29,4 +29,10 @@ class Question extends Model
     {
         return $this->hasMany(QuestionOption::class);
     }
+    // App/Models/QuizAttempt.php
+
+public function answers()
+{
+    return $this->hasMany(QuizAnswer::class);
+}
 }
