@@ -42,7 +42,7 @@ class CourseController extends Controller
         // Filter berdasarkan pencarian (search)
         if ($search) {
             $query->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                ->orWhere('description', 'like', "%{$search}%");
         }
 
         // Filter berdasarkan kategori
@@ -139,7 +139,7 @@ class CourseController extends Controller
         $totalStudents = $course->employees->count();
         return view('admin.courses.show', [
             'course' => $course,
-             'totalStudents' => $totalStudents
+            'totalStudents' => $totalStudents
         ]);
     }
 
@@ -167,73 +167,70 @@ class CourseController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateCourseRequest $request, Course $course)
-{
-    // Authorization check (already done in route).
-    if (Auth::user()->hasRole('teacher') && $course->teacher->user_id != Auth::user()->id) {
-        abort(403, 'Unauthorized action.');
-    }
-
-    $validated = $request->validated();
-
-    DB::transaction(function () use ($request, $course, $validated) {
-
-        // Handle thumbnail
-        if ($request->hasFile('thumbnail')) {
-            if ($course->thumbnail && Storage::disk('public')->exists($course->thumbnail)) {
-                Storage::disk('public')->delete($course->thumbnail);
-            }
-            $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+    {
+        // Authorization check
+        if (Auth::user()->hasRole('teacher') && $course->teacher->user_id != Auth::user()->id) {
+            abort(403, 'Unauthorized action.');
         }
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $validated = $request->validated();
 
-        // Handle demo video
-        if ($validated['demo_video_storage'] === 'upload') {
-            if ($request->hasFile('demo_video_source_file')) {
-                // Delete old video, if it exists and is a file.
-                if ($course->demo_video_source && $course->demo_video_storage === 'upload' && Storage::disk('public')->exists($course->demo_video_source)) {
+        DB::transaction(function () use ($request, $course, $validated) {
+            // Handle thumbnail
+            if ($request->hasFile('thumbnail')) {
+                if ($course->thumbnail && Storage::disk('public')->exists($course->thumbnail)) {
+                    Storage::disk('public')->delete($course->thumbnail);
+                }
+                $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            }
+
+            $validated['slug'] = Str::slug($validated['name']);
+
+            // Handle demo video
+            if ($validated['demo_video_storage'] === 'upload') {
+                if ($request->hasFile('demo_video_source_file')) {
+                    if ($course->demo_video_source && $course->demo_video_storage === 'upload'
+                        && Storage::disk('public')->exists($course->demo_video_source)) {
+                        Storage::disk('public')->delete($course->demo_video_source);
+                    }
+                    $validated['demo_video_source'] = $request->file('demo_video_source_file')
+                        ->store('course_videos', 'public');
+                }
+            } else {
+                if ($course->demo_video_storage === 'upload' && $course->demo_video_source
+                    && Storage::disk('public')->exists($course->demo_video_source)) {
                     Storage::disk('public')->delete($course->demo_video_source);
                 }
-                $validated['demo_video_source'] = $request->file('demo_video_source_file')->store('course_videos', 'public');
             }
-        } else {
-            // If changing from upload to link, delete the old file.
-            if ($course->demo_video_storage === 'upload' && $course->demo_video_source && Storage::disk('public')->exists($course->demo_video_source)) {
-                Storage::disk('public')->delete($course->demo_video_source);
-            }
-            // demo_video_source is already set by the FormRequest
-        }
 
-        $course->update($validated);
+            // Update course data (tanpa course_keypoints)
+            $courseData = collect($validated)->except('course_keypoints')->toArray();
+            $course->update($courseData);
 
-        // Sync keypoints (efficiently)
-        $existingKeypoints = $course->keypoints->pluck('keypoint')->toArray();
-        $newKeypoints = $request->input('course_keypoints', []);
-        $keypointsToKeep = [];
+            // Handle course keypoints
+            if (isset($validated['course_keypoints']) && is_array($validated['course_keypoints'])) {
+                // Delete existing keypoints
+                $course->keypoints()->delete();
 
-        foreach ($newKeypoints as $keypoint) {
-            if (!empty($keypoint)) {
-                if (in_array($keypoint, $existingKeypoints)) {
-                    $keypointsToKeep[] = $keypoint;  // Keep existing.
-                } else {
-                    $course->keypoints()->create(['keypoint' => $keypoint]); // Add new.
-                    $keypointsToKeep[] = $keypoint;
+                // Create new keypoints
+                foreach ($validated['course_keypoints'] as $keypoint) {
+                    if (!empty(trim($keypoint))) {
+                        $course->keypoints()->create([
+                            'name' => trim($keypoint)
+                        ]);
+                    }
                 }
             }
-        }
+        });
 
-        $course->keypoints()->whereNotIn('keypoint', $keypointsToKeep)->delete(); // Delete removed.
-
-
-    });
-
-    return redirect()->route('admin.courses.show', $course)->with('success', 'Course updated successfully');
-}
+        return redirect()->route('admin.courses.show', $course)
+            ->with('success', 'Course updated successfully');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-  public function destroy(Course $course)
+    public function destroy(Course $course)
     {
         if (Auth::user()->hasRole('teacher') && $course->teacher->user_id != Auth::user()->id) {
             abort(403, 'Unauthorized action.');
@@ -377,9 +374,8 @@ class CourseController extends Controller
     public function updateApproval(Request $request, Course $course)
     {
         // Authorization check (usually, only admins or teachers of the course can approve).
-        if (!Auth::user()->hasRole('admin') && !(Auth::user()->hasRole('teacher') && $course->teacher->user_id == Auth::user()->id))
-        {
-             abort(403, 'Unauthorized action.');
+        if (!Auth::user()->hasRole('admin') && !(Auth::user()->hasRole('teacher') && $course->teacher->user_id == Auth::user()->id)) {
+            abort(403, 'Unauthorized action.');
         }
 
         $request->validate([

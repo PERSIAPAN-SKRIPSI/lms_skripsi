@@ -8,7 +8,7 @@
                     BREADCRUMB START
                 ============================-->
     <section class="wsus__breadcrumb course_details_breadcrumb"
-        style="background: url({{ asset('images/breadcrumb_bg.jpg') }});">
+        style="background: url({{ asset('frontend/assets/images/breadcrumb_bg.jpg') }});">
         <div class="wsus__breadcrumb_overlay">
             <div class="container">
                 <div class="row">

@@ -33,7 +33,7 @@ class UpdateCourseRequest extends FormRequest
             'demo_video_source' => [
                 'required_if:demo_video_storage,youtube,external_link',
                 'nullable',
-                'string',   
+                'string',
             ],
             'demo_video_source_file' => [
                 'required_if:demo_video_storage,upload',
@@ -43,8 +43,8 @@ class UpdateCourseRequest extends FormRequest
                 'max:2048000'
             ],
             'duration' => ['nullable', 'string'],
-            'course_keypoints' => ['nullable', 'array'],
-            'course_keypoints.*' => ['nullable', 'string', 'max:255'],
+          'course_keypoints' => ['required', 'array'],
+'course_keypoints.*' => ['required', 'string', 'max:255'],
             'path_trailer' => ['nullable', 'string'], // Added path_trailer
             'description' => ['nullable','string'],
         ];
