@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class TeacherController extends Controller
 {
@@ -16,10 +17,10 @@ class TeacherController extends Controller
      */
     public function index()
     {
-         // Only admins can view teachers
-          if (!Auth::user()->hasRole('admin')) {
-                abort(403, 'Unauthorized action.');
-            }
+        // Only admins can view teachers
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $teachers = Teacher::with('user')
             ->orderBy('is_active', 'asc')
@@ -34,10 +35,10 @@ class TeacherController extends Controller
      */
     public function create()
     {
-          // Only admins can create teachers
-          if (!Auth::user()->hasRole('admin')) {
-                abort(403, 'Unauthorized action.');
-            }
+        // Only admins can create teachers
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
         $users = User::whereDoesntHave('teacher')
             ->whereHas('roles', fn($q) => $q->where('name', 'employee'))
             ->get();
@@ -120,10 +121,10 @@ class TeacherController extends Controller
      */
     public function show(Teacher $teacher)
     {
-         // Only admins can view teachers
-            if (!Auth::user()->hasRole('admin')) {
-                abort(403, 'Unauthorized action.');
-            }
+        // Only admins can view teachers
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('admin.teachers.show', [
             'teacher' => $teacher->load('user'),
             'certificateUrl' => $teacher->certificate ? Storage::url($teacher->certificate) : null,
@@ -136,10 +137,10 @@ class TeacherController extends Controller
      */
     public function edit(Teacher $teacher)
     {
-         // Only admins can edit teachers
-            if (!Auth::user()->hasRole('admin')) {
-               abort(403, 'Unauthorized action.');
-            }
+        // Only admins can edit teachers
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('admin.teachers.edit', [
             'teacher' => $teacher->load('user'),
             'users' => User::whereDoesntHave('teacher')->get()
@@ -149,9 +150,6 @@ class TeacherController extends Controller
     /**
      * Update the specified resource in storage.
      */
-      /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Teacher $teacher)
     {
         // Only admins can update teachers
@@ -159,20 +157,36 @@ class TeacherController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Validasi request (termasuk validasi avatar)
         $request->validate([
             'certificate' => 'nullable|file|mimes:pdf,doc,docx,jpeg,png,jpg|max:5120',
             'cv' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         DB::transaction(function () use ($teacher, $request) {
+            $user = $teacher->user; // Dapatkan user terkait dengan teacher
+
+            // Handle avatar update
+            if ($request->hasFile('avatar')) {
+                // Delete old avatar if exists
+                if ($user->avatar) {
+                    Storage::delete('public/' . $user->avatar);
+                }
+
+                // Store new avatar
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
+                $user->update(['avatar' => $avatarPath]);  // Update kolom avatar di tabel users
+            }
+
             $updateData = [];
-            $isUpdated = false; // Flag untuk menandakan apakah ada update yang dilakukan
+            $isUpdated = false;
 
             // Handle is_active update
             if ($request->has('is_active')) {
                 $updateData['is_active'] = $request->is_active;
-                $isUpdated = true; // Tandai bahwa is_active diupdate jika ada di request
+                $isUpdated = true;
             }
 
             // Handle certificate update
@@ -181,7 +195,7 @@ class TeacherController extends Controller
                     Storage::delete($teacher->certificate);
                 }
                 $updateData['certificate'] = $request->file('certificate')->store('teachers/documents', 'public');
-                $isUpdated = true; // Tandai bahwa certificate diupdate
+                $isUpdated = true;
             }
 
             // Handle CV update
@@ -190,20 +204,30 @@ class TeacherController extends Controller
                     Storage::delete($teacher->cv);
                 }
                 $updateData['cv'] = $request->file('cv')->store('teachers/cvs', 'public');
-                $isUpdated = true; // Tandai bahwa cv diupdate
+                $isUpdated = true;
             }
 
-            // Jika tidak ada update yang dilakukan, kembalikan dengan notifikasi
-            if (!$isUpdated && empty($updateData)) {
-                return back()->with('warning', 'Tidak ada dokumen atau status yang diupdate.');
-            }
-
-            if (!empty($updateData)) {
+            // Update Teacher data
+            if ($isUpdated && !empty($updateData)) {
                 $teacher->update($updateData);
+            }
+
+            //Jika user adalah employee, maka jadikan teacher
+            if ($user->hasRole('employee')) {
+                $user->removeRole('employee');
+                $user->assignRole('teacher');
+
+                // Set is_approved ke true saat role berubah menjadi teacher
+                 $user->update(['is_approved' => true]);
+            }
+
+            // Sinkronisasi is_active di tabel users (jika diperlukan)
+            if ($request->has('is_active')) {
+              $user->update(['is_active' => $request->is_active]); // Sinkronisasi ke tabel users
             }
         });
 
-        return redirect()->route('admin.teachers.index')->with('success', 'Data teacher berhasil diupdate');
+        return redirect()->route('admin.teachers.edit', $teacher)->with('success', 'Data teacher berhasil diupdate');
     }
 
     /**
@@ -211,10 +235,10 @@ class TeacherController extends Controller
      */
     public function destroy(Teacher $teacher)
     {
-          // Only admins can delete teachers
-            if (!Auth::user()->hasRole('admin')) {
-                abort(403, 'Unauthorized action.');
-            }
+        // Only admins can delete teachers
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
         DB::transaction(function () use ($teacher) {
             $user = $teacher->user;
 
@@ -238,8 +262,8 @@ class TeacherController extends Controller
      */
     public function checkDocuments(Request $request)
     {
-         // Only admins can check teachers documents
-         if (!Auth::user()->hasRole('admin')) {
+        // Only admins can check teachers documents
+        if (!Auth::user()->hasRole('admin')) {
             abort(403, 'Unauthorized action.');
         }
         $user = User::where('email', $request->email)->first();
@@ -251,7 +275,7 @@ class TeacherController extends Controller
         return response()->json([
             'exists' => true,
             'certificate' => Storage::url($user->teacher->certificate),
-            'cv' => Storage::url($user->teacher->cv)
+            'cv' => Storage::url($teacher->teacher->certificate) ,
         ]);
     }
 
@@ -261,9 +285,26 @@ class TeacherController extends Controller
     public function activate(Teacher $teacher)
     {
         // Only admins can activate/deactivate teachers
-         if (!Auth::user()->hasRole('admin')) {
+        if (!Auth::user()->hasRole('admin')) {
             abort(403, 'Unauthorized action.');
         }
+
+        $user = $teacher->user;
+
+        // Jika user adalah employee dan ingin diaktifkan sebagai teacher, validasi dokumen terlebih dahulu
+        if ($user->hasRole('employee')) {
+            if (!$teacher->certificate || !$teacher->cv) {
+                return back()->with('error', 'Teacher must have certificate and CV before activation.');
+            }
+
+            // Ubah role user menjadi teacher
+            $user->removeRole('employee');
+            $user->assignRole('teacher');
+
+            // Update is_approved menjadi true
+            $user->update(['is_approved' => true]);
+        }
+
         $teacher->update(['is_active' => !$teacher->is_active]);
         return back()->with('success', 'Status teacher berhasil diupdate');
     }

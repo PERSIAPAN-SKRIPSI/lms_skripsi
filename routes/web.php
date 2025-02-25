@@ -60,14 +60,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::resource('courses.videos', CourseVideoController::class)->except(['show', 'index']);
 
-        // Course Content Routes
-        Route::controller(CourseController::class)->name('courses.')->group(function () {
-            Route::get('/{course}/create-chapter', 'createChapter')->name('create-chapter');
-            Route::post('/{course}/create-chapter', 'storeChapter')->name('store-chapter');
-            Route::get('/chapter/{chapter}/edit-chapter', 'editChapter')->name('edit-chapter');
-            Route::post('/chapter/{chapter}/edit-chapter', 'updateChapter')->name('update-chapter');
-            Route::delete('/chapter/{chapter}', 'destroyChapter')->name('destroy-chapter');
-        });
+            // Course Content Routes
+            Route::controller(CourseController::class)->name('courses.')->group(function () {
+                Route::get('/{course}/create-chapter', 'createChapter')->name('create-chapter');
+                Route::post('/{course}/create-chapter', 'storeChapter')->name('store-chapter');
+                Route::get('/chapter/{chapter}/edit-chapter', 'editChapter')->name('edit-chapter');
+                Route::put('/chapter/{chapter}/edit-chapter', 'updateChapter')->name('update-chapter');
+                Route::delete('/chapter/{chapter}', 'destroyChapter')->name('destroy-chapter');
+            });
         //route untuk quizzes
         Route::resource('quizzes', QuizController::class)->except(['show']);
         Route::resource('quizzes/{quiz}/questions', QuestionController::class);
@@ -111,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/video/{course_video}/edit', 'edit')->name('edit.video');
             Route::put('/video/{course_video}', 'update')->name('update.video');
             Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
+
         });
 
         // TEACHER Quiz Routes
@@ -121,6 +122,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('employee')->name('employee.')->middleware('role:employee')->group(function () {
         Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
         Route::get('/courses', [CourseEmployeeController::class, 'index'])->name('courses.index');
+
     });
 });
 

@@ -26,6 +26,7 @@ class StoreCourseVideoRequest extends FormRequest
             'name'       => ['required', 'string', 'min:3', 'max:255'],
             'path_video' => ['required', 'string', 'max:255'],
             'chapter_id' => 'required|exists:chapters,id',
+            'duration' => 'required|integer'
         ];
     }
 }

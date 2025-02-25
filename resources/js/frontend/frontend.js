@@ -61,3 +61,32 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const videoModals = document.querySelectorAll('.video-modal');
+
+    videoModals.forEach(modal => {
+        // Stop video when modal is closed
+        modal.addEventListener('hidden.bs.modal', function () {
+            const iframe = this.querySelector('iframe');
+            const currentSrc = iframe.src;
+            iframe.src = '';
+            setTimeout(() => {
+                iframe.src = currentSrc;
+            }, 100);
+        });
+
+        // Handle fullscreen button click
+        const fullscreenBtn = modal.querySelector('.fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', function() {
+                if (modal.requestFullscreen) {
+                    modal.requestFullscreen();
+                } else if (modal.webkitRequestFullscreen) {
+                    modal.webkitRequestFullscreen();
+                } else if (modal.msRequestFullscreen) {
+                    modal.msRequestFullscreen();
+                }
+            });
+        }
+    });
+});

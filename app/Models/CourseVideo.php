@@ -16,6 +16,7 @@ class CourseVideo extends Model
         'path_video',
         'course_id',
         'chapter_id', // TAMBAHKAN INI!
+        'duration', // Tambahkan duration ke daftar fillabl
     ];
 
     /**

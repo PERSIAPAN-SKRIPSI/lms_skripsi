@@ -1,12 +1,11 @@
 /*============================
     GLOBAL CSS START
 ============================*/
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300;1,400;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Important for consistent sizing */
 }
 
 ul,
@@ -20,7 +19,6 @@ li {
 a {
     display: inline-block;
     text-decoration: none;
-    transition: color 0.3s ease; /* Smooth color transition on hover */
 }
 
 a:hover {
@@ -36,25 +34,20 @@ h6 {
     margin: 0;
     padding: 0;
     color: var(--colorBlack);
-    font-weight: 700; /* Make headings stand out */
-    line-height: 1.2; /* Improve heading readability */
 }
 
 p,
 span {
-    font-size: 16px; /* Slightly larger for better readability */
+    font-size: 15px;
     font-weight: 400;
     margin: 0;
     color: var(--paraColor);
-    line-height: 1.6; /* Improved line height for readability */
 }
 
 body {
     overflow-x: hidden;
     scroll-behavior: smooth;
     font-family: var(--bodyFont);
-    background-color: var(--colorWhite); /* Explicitly set background */
-    color: var(--colorBlack); /* Explicitly set text color */
 }
 
 img {
@@ -67,51 +60,38 @@ input,
 select,
 textarea {
     width: 100%;
-    padding: 14px 22px; /* Slightly larger padding */
+    padding: 12px 20px;
     outline: none;
     resize: none;
     border: 1px solid var(--borderColor);
     font-weight: 400;
-    border-radius: 8px; /* Slightly more rounded */
-    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: var(--colorPrimary);
-    box-shadow: 0 0 5px rgba(var(--colorPrimaryRGB), 0.3); /* Soft shadow on focus */
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
 }
 
 input::placeholder,
 textarea::placeholder {
-    color: #999; /* Lighter placeholder text */
-    font-weight: 300;
+    color: #787882;
 }
 
 button {
     border: none;
-    cursor: pointer; /* Indicate interactivity */
 }
 
 :root {
-    /* COLOR PALETTE - A more modern and harmonious palette */
-    --colorPrimary: #4285F4;          /* Google Blue - A bit more vibrant */
-    --colorPrimaryRGB: 66, 133, 244;  /* RGB values for shadows */
-    --colorSecondary: #0F9D58;          /* Google Green - A complementary color */
-    --colorAccent: #F4B400;             /* Google Yellow */
-    --colorAlert: #DB4437;              /* Google Red */
-
-    --colorBlack: #202124;              /* Dark Gray - More subtle than pure black */
-    --colorWhite: #FFFFFF;              /* White */
-    --paraColor: #5F6368;              /* Medium Gray - Better readability */
-    --colorLightBg: #F1F3F4;            /* Very Light Gray - Soft background */
-    --borderColor: #DADCE0;             /* Light Gray Border */
-    --ratingColor: #FFC107;             /* Star Rating Color */
-
-    /* FONT FAMILY */
-    --bodyFont: 'Inter', sans-serif;
-    font-weight: 400; /* Or 300, 500, 600, 700, etc. */
+    --colorPrimary: #356DF1;
+    --colorOrange: #F5D04A;
+    --colorGreen: #43D477;
+    --colorBlack: #1E1E2F;
+    --colorWhite: #ffffff;
+    --paraColor: #787882;
+    --colorLightBg: #EFEFF8;
+    --ratingColor: #FFA121;
+    --borderColor: rgba(30, 30, 47, 0.10);
+    --bodyFont: "Roboto", sans-serif;
 }
 
 .common_btn,
@@ -1661,14 +1641,6 @@ header .wsus__header_right li .nice-select .list {
 
 /* category end */
 
-.course-card:hover .card {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.course-card .card {
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
 /* call to action start */
 .wsus__call_to_action {
     padding: 0px 160px;
@@ -3586,9 +3558,7 @@ footer {
 }
 
 .wsus__category_item_2_text span {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
     width: 70px;
     height: 70px;
     background: var(--colorPrimary);
@@ -3605,10 +3575,7 @@ footer {
 }
 
 .wsus__category_item_2_text span img {
-   /* filter: brightness(0) saturate(100%) invert(100%) sepia(100%) saturate(1%) hue-rotate(103deg) brightness(103%) contrast(102%); Hilangkan filter untuk warna asli */
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    filter: brightness(0) saturate(100%) invert(100%) sepia(100%) saturate(1%) hue-rotate(103deg) brightness(103%) contrast(102%);
 }
 
 .wsus__category_item_2_text .title {
@@ -4597,16 +4564,13 @@ footer {
     -o-border-radius: 6px;
 }
 
-.main_menu_3 .menu_category .Icon {
+.main_menu_3 .menu_category .icon {
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     margin-right: 5px;
 }
-.menu-icon {
-    width: 32px;  /* Ukuran yang Anda inginkan */
-    height: 32px; /* Ukuran yang Anda inginkan */
-}
+
 .main_menu_3 .menu_category:hover .icon {
     filter: brightness(0) saturate(100%) invert(38%) sepia(33%) saturate(7247%) hue-rotate(214deg) brightness(100%) contrast(90%);
 }
@@ -15756,17 +15720,4 @@ select {
 
   .file_type_inner div img {
     width: 80px !important;
-  }
-  .offcanvas-header .btn-close {
-    filter: none; /* Menghilangkan filter default (yang membuat ikon putih) */
-    opacity: 1;   /* Memastikan ikon selalu terlihat (tidak menghilang) */
-  }
-
-  .offcanvas-header .btn-close:hover {
-    filter: none; /* Menghilangkan filter hover */
-    opacity: 1;  /* Memastikan ikon tetap terlihat saat hover */
-  }
-
-  .offcanvas-header .btn-close i {
-    color: inherit; /* Memastikan ikon mewarisi warna dari elemen parent */
   }
