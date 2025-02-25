@@ -20,10 +20,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizMonitoringController;
 use Illuminate\Support\Facades\Artisan;
 
-Route::get('/storage-link',function(){
-    Artisan::call('storage:link');
-    return 'storage linked successfully';
-});
+
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/category', [FrontendController::class, 'Category'])->name('frontend.pages.category');
