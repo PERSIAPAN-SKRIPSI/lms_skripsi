@@ -5,19 +5,24 @@
             <div class="row justify-content-between">
                 <div class="col-xl-6 col-lg-6 wow fadeInUp">
                     <div class="wsus__banner_3_text">
-                        <h2>Investasi Terbaik untuk Masa Depanmu di PT Taharica</h2>
-                        <h1>Platform E-Learning Pengembangan Kompetensi Karyawan <span>PT Taharica</span></h1>
-                        <p class="description">PT Taharica menghadirkan platform e-learning eksklusif untuk pengembangan kompetensi karyawan. Tingkatkan keahlian Anda agar adaptif dengan perkembangan industri yang dinamis melalui kursus online interaktif yang dirancang khusus. Akses materi pembelajaran kapan saja dan di mana saja, lacak kemajuan belajar secara real-time, dan capai target kompetensi yang ditetapkan perusahaan. Platform ini adalah solusi inovatif untuk pelatihan yang efektif dan efisien, mendukung pertumbuhan karir Anda dan kemajuan PT Taharica.</p>
+                        <h5>Show Up For Learning</h5>
+                        <h1>Platform E-Learning Pengembangan Kompetensi Karyawan<span>EduCore</span></h1>
+                        <p class="description">PT Taharica menghadirkan platform e-learning eksklusif untuk pengembangan kompetensi karyawan.
+                            Tingkatkan keahlian Anda agar adaptif dengan perkembangan industri yang dinamis melalui kursus online interaktif yang dirancang khusus.
+                            Akses materi pembelajaran kapan saja dan di mana saja,
+                             lacak kemajuan belajar secara real-time, dan capai target kompetensi yang ditetapkan perusahaan.
+                             Platform ini adalah solusi inovatif untuk pelatihan yang efektif dan efisien,
+                             mendukung pertumbuhan karir Anda dan kemajuan PT Taharica.</p>
                         <div class="wsus__banner_2_btn_area mt_60">
-                            <a class="common_btn" href="/daftar-platform-taharica" aria-label="Mulai Akses Platform E-Learning Pengembangan Kompetensi PT Taharica">Mulai Belajar Sekarang <i class="far fa-arrow-right"
+                            <a class="common_btn" href="#">Start Free Trial <i class="far fa-arrow-right"
                                     aria-hidden="true"></i></a>
                             <div class="play_btn_area">
                                 <a class="play_btn venobox vbox-item" data-autoplay="true" data-vbtype="video"
-                                    href="https://youtu.be/sVPYIRF9RCQ?si=labNkx-xlyOWtptr" aria-label="Video Showcase Platform E-Learning Pengembangan Kompetensi PT Taharica">
-                                    <img src="{{ asset('frontend/assets/images/play_icon.png') }}" alt="Tombol Play Video Showcase Platform E-Learning PT Taharica"
+                                    href="https://youtu.be/sVPYIRF9RCQ?si=labNkx-xlyOWtptr">
+                                    <img src="{{ asset('frontend/assets/images/play_icon.png') }}" alt="Play"
                                         class="img-fluid">
                                 </a>
-                                <h4>Lihat Demo Platform</h4>
+                                <h4>See Our Lesson Showcase</h4>
                             </div>
                         </div>
                     </div>
@@ -25,12 +30,12 @@
                 <div class="col-xl-4 col-lg-6 wow fadeInRight">
                     <div class="wsus__banner_3_img">
                         <div class="img">
-                            <img src="{{ asset('frontend/assets/images/banner_3_img_1.png') }}" alt="Ilustrasi Karyawan PT Taharica Belajar Online untuk Pengembangan Kompetensi"
+                            <img src="{{ asset('frontend/assets/images/banner_3_img_1.png') }}" alt="Banner"
                                 class="img-fluid">
 
                             <div class="text">
-                                <h4>Ratusan Modul Pelatihan Interaktif Tersedia</h4>
-                                <p>Kembangkan kompetensi di berbagai bidang industri</p>
+                                <h4>250+ Popular Course</h4>
+                                <p>Explore a variety of fresh topics</p>
                             </div>
 
                             <div class="circle_box">
@@ -44,7 +49,7 @@
                                     </defs>
                                     <text>
                                         <textPath xlink:href="#circle">
-                                            Tingkatkan Kompetensi Karyawan untuk Kemajuan PT Taharica
+                                            take the worldwide best online course
                                         </textPath>
                                     </text>
                                 </svg>
