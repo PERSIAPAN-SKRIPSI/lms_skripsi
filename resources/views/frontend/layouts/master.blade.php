@@ -8,7 +8,7 @@
     <meta name="base_url" content="{{ url('/') }}">
     <meta name="csrf_token" content="{{ csrf_token() }}">
     @stack('meta')
-    <title>EduCore - Online Courses & Education HTML Template</title>
+    <title>EduCore </title>
     <link rel="icon" type="image/png" href="{{ asset(config('settings.site_favicon')) }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/bootstrap.min.css') }}">
