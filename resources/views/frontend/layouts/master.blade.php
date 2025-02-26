@@ -10,7 +10,7 @@
     @stack('meta')
     <title>EduCore </title>
 
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('frontend/assets/images/logoweb.png') }}"> <!-- Untuk Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('frontend/assets/images/Logoo.png') }}"> <!-- Untuk Android Chrome -->
     <link rel="apple-touch-icon" sizes="500x500" href="{{ asset('frontend/assets/images/logoweb.png') }}"> <!-- Untuk iOS (Apple) -->
 
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/all.min.css') }}">
