@@ -83,7 +83,7 @@ button {
 
 :root {
     --colorPrimary: #356DF1;
-    --colorOrange: #F5D04A;
+    --colorOrange: #1d70be;
     --colorGreen: #43D477;
     --colorBlack: #1E1E2F;
     --colorWhite: #ffffff;
@@ -4931,10 +4931,12 @@ footer {
 }
 
 .wsus__banner_features li {
-    width: 32.4%;
+    /* Gunakan flex-basis untuk ukuran awal, biarkan flexbox atur lebar */
+    flex-basis: calc(33.33% - 20px); /* Contoh: 3 item per baris, dikurangi sedikit untuk margin/gap */
+    max-width: calc(33.33% - 20px); /* Batasi lebar maksimum agar tidak melebihi */
+    min-width: 250px; /* Lebar minimum agar item tidak terlalu sempit */
     padding: 15px;
-    display: flex;
-    flex-wrap: wrap;
+    display: flex; /* Tetap flex untuk tata letak internal icon dan text */
     align-items: center;
     gap: 16px;
     border-radius: 10px;
@@ -4942,6 +4944,7 @@ footer {
     -moz-border-radius: 10px;
     -ms-border-radius: 10px;
     -o-border-radius: 10px;
+    margin-bottom: 20px; /* Tambahkan margin bawah antar baris */
 }
 
 .wsus__banner_features li .icon {
@@ -4953,6 +4956,23 @@ footer {
     -moz-border-radius: 6px;
     -ms-border-radius: 6px;
     -o-border-radius: 6px;
+    flex-shrink: 0; /* Agar icon tidak menyusut */
+}
+
+/* Media query untuk layar yang lebih kecil (misalnya tablet) */
+@media (max-width: 768px) {
+    .wsus__banner_features li {
+        flex-basis: calc(50% - 20px); /* 2 item per baris di tablet */
+        max-width: calc(50% - 20px);
+    }
+}
+
+/* Media query untuk layar yang lebih kecil lagi (misalnya ponsel) */
+@media (max-width: 576px) {
+    .wsus__banner_features li {
+        flex-basis: 100%; /* 1 item per baris di ponsel (full width) */
+        max-width: 100%;
+    }
 }
 
 .wsus__banner_features li .text {
