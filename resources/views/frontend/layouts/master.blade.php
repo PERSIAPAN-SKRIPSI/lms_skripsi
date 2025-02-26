@@ -9,12 +9,12 @@
     <meta name="csrf_token" content="{{ csrf_token() }}">
     @stack('meta')
     <title>EduCore </title>
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('frontend/assets/images/logo_dark.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('frontend/assets/images/logo_dark.png') }}">
-    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('frontend/assets/images/logo_dark.png') }}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('frontend/assets/images/logo_dark.png') }}"> <!-- Untuk Android Chrome -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('frontend/assets/images/logo_dark.png') }}"> <!-- Untuk iOS (Apple) -->
-  
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/logo/logo.svg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/logo/logo.svg') }}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('assets/logo/logo.svg') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('assets/logo/logo.svg') }}"> <!-- Untuk Android Chrome -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/logo/logo.svg') }}"> <!-- Untuk iOS (Apple) -->
+
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/animated_barfiller.css') }}">
