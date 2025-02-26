@@ -9,7 +9,16 @@
     <meta name="csrf_token" content="{{ csrf_token() }}">
     @stack('meta')
     <title>EduCore </title>
-    <link rel="icon" type="image/png" href="{{ asset('frontend/assets/images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('frontend/assets/images/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('frontend/assets/images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('frontend/assets/images/favicon-48x48.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('frontend/assets/images/android-chrome-192x192.png') }}"> <!-- Untuk Android Chrome -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('frontend/assets/images/apple-touch-icon.png') }}"> <!-- Untuk iOS (Apple) -->
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}"> <!-- File manifest untuk PWA (Progressive Web App) -->
+    <link rel="mask-icon" href="{{ asset('safari-pinned-tab.svg') }}" color="#5bbad5"> <!-- Safari pinned tab icon -->
+    <meta name="msapplication-TileColor" content="#da532c"> <!-- Warna tile Windows -->
+    <meta name="msapplication-TileImage" content="{{ asset('mstile-144x144.png') }}"> <!-- Tile image Windows -->
+    <meta name="theme-color" content="#ffffff"> <!-- Warna tema browser -->
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/animated_barfiller.css') }}">
