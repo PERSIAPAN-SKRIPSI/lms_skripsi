@@ -7,9 +7,7 @@
                     <div class="wsus__banner_3_text">
                         <h5>Show Up For Learning</h5>
                         <h1>Premier E-Learning Courses From <span>EduCore</span></h1>
-                        <p class="description">Nullam tincidunt tortor est, ac maximus justo gravida non phasellus dignissim
-                            quam odio ipsum
-                            sollicitudin rhoncus venenatis ex metus in turpis.</p>
+                        <p class="description">ssss</p>
                         <div class="wsus__banner_2_btn_area mt_60">
                             <a class="common_btn" href="#">Start Free Trial <i class="far fa-arrow-right"
                                     aria-hidden="true"></i></a>
