@@ -1,28 +1,5 @@
 @extends('frontend.layouts.master')
 
-@section('content')
-    <!--===========================
-        BREADCRUMB START
-    ============================-->
-    <section class="wsus__breadcrumb" style="background: url({{ asset('assets/images/breadcrumb_bg.jpg') }});">
-        <div class="wsus__breadcrumb_overlay">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 wow fadeInUp">
-                        <div class="wsus__breadcrumb_text">
-                            <h1>{{ $category->name }}</h1>
-                            <ul>
-                                <li><a href="{{ route('frontend.index') }}">Home</a></li>
-                                <li><a href="{{ route('frontend.pages.category') }}">Categories</a></li>
-                                <li>{{ Str::limit($category->name, 25) }}</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    @extends('frontend.layouts.master')
 
     @section('content')
         <!--===========================
