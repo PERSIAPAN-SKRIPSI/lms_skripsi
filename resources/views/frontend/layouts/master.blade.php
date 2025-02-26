@@ -8,11 +8,8 @@
     <meta name="base_url" content="{{ url('/') }}">
     <meta name="csrf_token" content="{{ csrf_token() }}">
     @stack('meta')
-    <title>EduCore </title>
-
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('frontend/assets/images/Logoo.png') }}"> <!-- Untuk Android Chrome -->
-    <link rel="apple-touch-icon" sizes="500x500" href="{{ asset('frontend/assets/images/logoweb.png') }}"> <!-- Untuk iOS (Apple) -->
-
+    <title>EduCore - Online Courses & Education HTML Template</title>
+    <link rel="icon" type="image/png" href="{{ asset('frontend/assets/images/logoweb.png') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/animated_barfiller.css') }}">
@@ -30,15 +27,14 @@
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/sticky_menu.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/jquery-ui.min.css') }}">
-    <link href="{{ asset('output.css') }}" rel="stylesheet">
 
-    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"> --}}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 
 
     <link rel=" stylesheet" href="{{ asset('frontend/assets/css/spacing.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/responsive.css') }}">
-
     @vite(['resources/css/frontend.css', 'resources/js/frontend/frontend.js'])
     <!--dynamic js-->
     @stack('header_scripts')
@@ -132,7 +128,6 @@
     <!--dynamic js-->
     @stack('scripts')
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         var notyf = new Notyf({
             duration: 5000,
