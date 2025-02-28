@@ -21,8 +21,11 @@ use App\Http\Controllers\QuizMonitoringController;
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/symlink', function () {
-    Artisan::call('storage:link');
-});
+    $target =$_SERVER['DOCUMENT_ROOT'].'/storage/app/public';
+    $link = $_SERVER['DOCUMENT_ROOT'].'/public/storage';
+    symlink($target, $link);
+    echo "Done";
+ });
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/category', [FrontendController::class, 'Category'])->name('frontend.pages.category');
