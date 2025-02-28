@@ -20,7 +20,9 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizMonitoringController;
 use Illuminate\Support\Facades\Artisan;
 
-
+Route::get('/symlink', function () {
+    Artisan::call('storage:link');
+});
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/category', [FrontendController::class, 'Category'])->name('frontend.pages.category');
