@@ -20,13 +20,46 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizMonitoringController;
 use Illuminate\Support\Facades\Artisan;
 
-Route::get('/symlink', function () {
-    Artisan::call('storage:link');
-    $target =$_SERVER['DOCUMENT_ROOT'].'/storage/app/public';
-    $link = $_SERVER['DOCUMENT_ROOT'].'/public/storage';
-    symlink($target, $link);
-    echo "Done";
- });
+Route::get('/create-storage-folder', function () {
+    try {
+        // Path untuk direktori storage
+        $publicPath = public_path('storage');
+        $storagePath = storage_path('app/public');
+
+        // Buat direktori storage/app/public jika belum ada
+        if (!is_dir($storagePath)) {
+            mkdir($storagePath, 0755, true);
+            echo "Created directory: {$storagePath}<br>";
+        }
+
+        // Hapus folder public/storage jika sudah ada (untuk mencegah error)
+        if (is_dir($publicPath)) {
+            // Hapus symlink yang sudah ada
+            if (is_link($publicPath)) {
+                unlink($publicPath);
+                echo "Removed existing symlink<br>";
+            }
+            // Atau hapus folder jika bukan symlink
+            else {
+                rmdir($publicPath);
+                echo "Removed existing directory<br>";
+            }
+        }
+
+        // Coba gunakan Artisan command untuk membuat symlink
+        Artisan::call('storage:link');
+        echo "Artisan command executed: " . Artisan::output() . "<br>";
+
+        // Verifikasi apakah link berhasil dibuat
+        if (is_link($publicPath) || is_dir($publicPath)) {
+            return "Storage link created successfully!";
+        } else {
+            return "Failed to create storage link. Please check server permissions.";
+        }
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/category', [FrontendController::class, 'Category'])->name('frontend.pages.category');
