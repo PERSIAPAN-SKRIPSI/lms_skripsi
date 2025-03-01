@@ -353,5 +353,11 @@
                 });
             });
         });
+        document.addEventListener('alpine:init', () => {
+        Alpine.data('courseContent', () => ({
+            open: false,
+        }));
+    });
     </script>
+
 </x-app-layout>
