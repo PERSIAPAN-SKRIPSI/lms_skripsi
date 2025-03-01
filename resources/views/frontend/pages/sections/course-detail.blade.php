@@ -388,6 +388,7 @@
                         </ul>
                      </div>
                   @endif
+
                   <div class="wsus__courses_sidebar_list_info">
                      <ul>
                         <li>

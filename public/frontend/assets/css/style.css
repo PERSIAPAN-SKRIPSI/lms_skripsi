@@ -15721,3 +15721,63 @@ select {
   .file_type_inner div img {
     width: 80px !important;
   }
+
+/* Desain 2: "Bold Accent Line" */
+.demo-videos-list {
+    background-color: #f9f9f9; /* Latar belakang abu-abu lembut */
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.demo-videos-list h4 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #333;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #007bff; /* Garis bawah judul tebal berwarna biru */
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.demo-videos-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.demo-videos-list ul li {
+    margin-bottom: 0;
+    border-bottom: 2px solid #007bff; /* Garis bawah item tebal berwarna biru */
+}
+
+.demo-videos-list ul li:last-child {
+    border-bottom: none; /* Hilangkan garis bawah pada item terakhir */
+}
+
+.demo-videos-list ul li a {
+    display: flex;
+    align-items: center;
+    color: #444;
+    text-decoration: none;
+    padding: 15px 20px;
+    transition: background-color 0.2s ease;
+    background-color: #fff;
+}
+
+.demo-videos-list ul li a:hover {
+    background-color: #eee; /* Latar belakang hover abu-abu muda */
+    color: #007bff;
+}
+
+.demo-videos-list ul li a i.fas.fa-play-circle {
+    margin-right: 15px;
+    color: #007bff; /* Ikon play berwarna biru secara default */
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.demo-videos-list ul li a:hover i.fas.fa-play-circle {
+    opacity: 1;
+}
