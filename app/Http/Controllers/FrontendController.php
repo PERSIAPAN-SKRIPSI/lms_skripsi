@@ -15,11 +15,18 @@ class FrontendController extends Controller
      */
     public function index()
     {
+        // Ambil kategori parent yang memiliki setidaknya satu kursus terkait
         $categories = Category::whereNull('parent_id')
-            ->withCount('courses') // Eager load jumlah kursus (opsional)
+            ->has('courses')
+            ->withCount('courses')
             ->get();
 
-        $courses = Course::all(); //  Anda mungkin ingin membatasi atau mengurutkan ini
+        // Ambil semua kursus, eager load teacher, dan hitung videos dan employees
+        $courses = Course::with('teacher')
+            ->withCount('videos') // Hitung jumlah videos (lessons)
+            ->withCount('employees') // Hitung jumlah employees (students) yang enrolled
+            ->latest() // Tambahkan latest() untuk urutan terbaru (opsional)
+            ->get();
 
         return view('frontend.pages.index', [
             'categories' => $categories,
