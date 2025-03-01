@@ -14,7 +14,7 @@
                     </h3>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('admin.quizzes.questions.options.update', [$quiz->id, $question->id, $option->id]) }}" method="POST" class="space-y-6">
+                    <form action="{{ route('admin.options.update', [$quiz->id, $question->id, $option->id]) }}" method="POST" class="space-y-6">
                         @csrf
                         @method('PUT')
 
@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="flex justify-end space-x-3">
-                            <a href="{{ route('admin.quizzes.questions.options.index', [$quiz->id, $question->id]) }}"
+                            <a href="{{ route('admin.options.index', [$quiz->id, $question->id]) }}"
                                 class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 transition ease-in-out duration-150">
                                 Cancel
                             </a>

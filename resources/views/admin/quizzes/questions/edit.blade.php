@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('admin.quizzes.questions.update', [$quiz->id, $question->id]) }}" method="POST">
+                    <form action="{{ route('admin.questions.update', [$quiz->id, $question->id]) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -29,7 +29,7 @@
                         </div>
 
                         <div class="flex justify-end">
-                            <a href="{{ route('admin.quizzes.questions.index', $quiz->id) }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2">Cancel</a>
+                            <a href="{{ route('admin.questions.index', $quiz->id) }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2">Cancel</a>
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Update Question</button>
                         </div>
                     </form>

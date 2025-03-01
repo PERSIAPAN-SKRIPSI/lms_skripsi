@@ -111,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             });
         //route untuk quizzes
         Route::resource('quizzes', QuizController::class)->except(['show']);
+
         Route::resource('quizzes/{quiz}/questions', QuestionController::class);
         Route::resource('quizzes/{quiz}/questions/{question}/options', QuestionOptionController::class);
 
