@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Course;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\ModelNotFoundException; // Import untuk error handling
 
 class FrontendController extends Controller
 {
@@ -33,7 +33,6 @@ class FrontendController extends Controller
             'courses' => $courses,
         ]);
     }
-
     /**
      * Menampilkan halaman daftar kategori
      */
@@ -89,104 +88,104 @@ class FrontendController extends Controller
             abort(404, 'Category not found');
         }
     }
-/**
- * Prepare demo videos for course detail page
- *
- * @param Course $course
- * @return array
- */
-private function prepareDemoVideos(Course $course)
-{
-    $chapterDemoVideos = [];
-    $maxDemoDuration = 120; // 2 menit dalam detik
+    /**
+     * Prepare demo videos for course detail page
+     *
+     * @param Course $course
+     * @return array
+     */
+    private function prepareDemoVideos(Course $course)
+    {
+        $chapterDemoVideos = [];
+        $maxDemoDuration = 120; // 2 menit dalam detik
 
-    foreach ($course->chapters as $chapter) {
-        $firstVideo = $chapter->videos->first();
+        foreach ($course->chapters as $chapter) {
+            $firstVideo = $chapter->videos->first();
 
-        if ($firstVideo) {
-            // Batasi durasi video menjadi maksimal 2 menit
-            $endTime = min($firstVideo->duration, $maxDemoDuration);
+            if ($firstVideo) {
+                // Batasi durasi video menjadi maksimal 2 menit
+                $endTime = min($firstVideo->duration, $maxDemoDuration);
 
-            // Buat URL dengan parameter waktu
-            $videoUrl = "https://www.youtube.com/embed/{$firstVideo->path_video}?start=0&end={$endTime}";
+                // Buat URL dengan parameter waktu
+                $videoUrl = "https://www.youtube.com/embed/{$firstVideo->path_video}?start=0&end={$endTime}";
 
-            $chapterDemoVideos[] = [
-                'chapter_name' => $chapter->name,
-                'video_id' => $firstVideo->path_video,
-                'video_name' => $firstVideo->name,
-                'video_url' => $videoUrl,
-                'duration' => $endTime,
-                'duration_formatted' => $this->formatDurationForDisplay($endTime)
-            ];
+                $chapterDemoVideos[] = [
+                    'chapter_name' => $chapter->name,
+                    'video_id' => $firstVideo->path_video,
+                    'video_name' => $firstVideo->name,
+                    'video_url' => $videoUrl,
+                    'duration' => $endTime,
+                    'duration_formatted' => $this->formatDurationForDisplay($endTime)
+                ];
+            }
         }
+
+        return $chapterDemoVideos;
     }
 
-    return $chapterDemoVideos;
-}
+    /**
+     * Format duration in seconds to readable format
+     *
+     * @param int $seconds
+     * @return string
+     */
+    private function formatDurationForDisplay($seconds)
+    {
+        if ($seconds < 60) {
+            return sprintf("0:%02d", $seconds);
+        }
 
-/**
- * Format duration in seconds to readable format
- *
- * @param int $seconds
- * @return string
- */
-private function formatDurationForDisplay($seconds)
-{
-    if ($seconds < 60) {
-        return sprintf("0:%02d", $seconds);
+        $minutes = floor($seconds / 60);
+        $remainingSeconds = $seconds % 60;
+
+        if ($minutes < 60) {
+            return sprintf("%d:%02d", $minutes, $remainingSeconds);
+        }
+
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+
+        return sprintf("%d:%02d:%02d", $hours, $remainingMinutes, $remainingSeconds);
     }
 
-    $minutes = floor($seconds / 60);
-    $remainingSeconds = $seconds % 60;
+    /**
+     * Course detail page with demo videos
+     */
+    public function CourseDetail(Course $course)
+    {
+        $course->load([
+            'teacher.user',
+            'chapters.videos',
+            'keypoints',
+            'category'
+        ]);
 
-    if ($minutes < 60) {
-        return sprintf("%d:%02d", $minutes, $remainingSeconds);
+        // Hitung jumlah course yang dibuat oleh teacher
+        if ($course->teacher) {
+            $course->teacher->courses_count = Course::where('teacher_id', $course->teacher->id)->count();
+        }
+
+        // Hanya tampilkan teacher yang aktif
+        if ($course->teacher && !$course->teacher->is_active) {
+            $course->teacher = null;
+        }
+
+        $categories = Category::whereNull('parent_id')
+            ->withCount('courses')
+            ->get();
+
+        // Siapkan video demo
+        $chapterDemoVideos = $this->prepareDemoVideos($course);
+
+        return view('frontend.pages.sections.course-detail', [
+            'course' => $course,
+            'categories' => $categories,
+            'chapterDemoVideos' => $chapterDemoVideos,
+        ]);
     }
-
-    $hours = floor($minutes / 60);
-    $remainingMinutes = $minutes % 60;
-
-    return sprintf("%d:%02d:%02d", $hours, $remainingMinutes, $remainingSeconds);
-}
-
-/**
- * Course detail page with demo videos
- */
-public function CourseDetail(Course $course)
-{
-    $course->load([
-        'teacher.user',
-        'chapters.videos',
-        'keypoints',
-        'category'
-    ]);
-
-    // Hitung jumlah course yang dibuat oleh teacher
-    if ($course->teacher) {
-        $course->teacher->courses_count = Course::where('teacher_id', $course->teacher->id)->count();
-    }
-
-    // Hanya tampilkan teacher yang aktif
-    if ($course->teacher && !$course->teacher->is_active) {
-        $course->teacher = null;
-    }
-
-    $categories = Category::whereNull('parent_id')
-        ->withCount('courses')
-        ->get();
-
-    // Siapkan video demo
-    $chapterDemoVideos = $this->prepareDemoVideos($course);
-
-    return view('frontend.pages.sections.course-detail', [
-        'course' => $course,
-        'categories' => $categories,
-        'chapterDemoVideos' => $chapterDemoVideos,
-    ]);
-}
-/**
- * Menampilkan halaman detail kursus.
- */
+    /**
+     * Menampilkan halaman detail kursus.
+     */
 
 
     /**
@@ -212,5 +211,30 @@ public function CourseDetail(Course $course)
         } catch (ModelNotFoundException $e) {
             abort(404, 'Subcategory not found');
         }
+    }
+
+    /**
+     * Menampilkan halaman daftar semua kursus.
+     */
+    public function Courses()
+    {
+        // Ambil semua kursus, eager load teacher, dan hitung videos dan employees
+        $courses = Course::with('teacher', 'teacher.user', 'videos') // Eager load teacher, user, and videos
+            ->withCount('videos') // Hitung jumlah videos (lessons)
+            ->withCount('employees') // Hitung jumlah employees (students) yang enrolled
+            ->latest() // Tambahkan latest() untuk urutan terbaru (opsional)
+            ->paginate(9); // Pagination untuk daftar kursus, sesuaikan jumlah per halaman jika perlu (contoh: 9)
+
+        // Ambil kategori untuk sidebar filter (opsional)
+        $categories = Category::whereNull('parent_id')
+            ->with('children') // Load subcategories
+            ->withCount('courses')
+            ->get();
+
+
+        return view('frontend.pages.courses.index', [ // Pastikan path view benar
+            'courses' => $courses,
+            'categories' => $categories, // Kirim kategori juga untuk sidebar filter
+        ]);
     }
 }

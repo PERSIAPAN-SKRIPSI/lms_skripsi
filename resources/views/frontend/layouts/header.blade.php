@@ -69,7 +69,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">About Us</a>
                 </li>
-
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('courses') ? 'active' : '' }}" href="{{ route('frontend.pages.courses') }}">Courses</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Blog</a>
                 </li>

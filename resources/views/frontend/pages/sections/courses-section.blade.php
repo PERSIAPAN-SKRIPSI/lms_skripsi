@@ -38,22 +38,31 @@
                     tabindex="0">
                     <div class="row">
                         @foreach($courses as $course)
+                        @php
+                            $totalDuration = 0;
+                            foreach($course->videos as $video){
+                                $totalDuration += $video->duration; // Asumsi duration dalam menit
+                            }
+                        @endphp
                         <div class="col-xl-3 col-md-6 col-lg-4">
                             <div class="wsus__single_courses_3">
                                 <div class="wsus__single_courses_3_img">
-                                    <img src="{{ $course->thumbnailUrl }}" alt="{{ $course->name }}" class="img-fluid">
+                                    <img src="{{ Storage::url($course->thumbnail) }}" class="card-img-top rounded-top" alt="thumbnail" style="height: 200px; object-fit: cover;">
+                                    <span class="time"><i class="far fa-clock"></i>
+                                        {{ floor($totalDuration / 60) }}:{{ str_pad($totalDuration % 60, 2, '0', STR_PAD_LEFT) }} Minutes
+                                    </span>
                                     </div>
                                 <div class="wsus__single_courses_text_3">
                                     <a class="title" href="{{ route('frontend.pages.course-detail', $course->slug) }}">{{ $course->name }}</a>
                                     <ul>
-                                        <li>{{ $course->videos_count }} Lessons</li> {{-- Menampilkan jumlah lessons --}}
-                                        <li>{{ $course->employees_count }} Student</li> {{-- Menampilkan jumlah students --}}
+                                        <li>{{ $course->videos_count }} Lessons</li>
+                                        <li>{{ $course->employees_count }} Student</li>
                                     </ul>
                                     <a class="author" href="#">
                                         <div class="img">
-                                            <img src="images/author_img_2.jpg" alt="Author" class="img-fluid">
+                                            <img src="{{ Storage::url($course->teacher->user->avatar) }}" class="w-100 h-100 object-cover" alt="icon">
                                         </div>
-                                        <h4>{{ $course->teacher->user->name ?? 'Teacher Name' }}</h4> {{-- Menampilkan nama guru --}}
+                                        <h4>{{ $course->teacher->user->name ?? 'Teacher Name' }}</h4>
                                     </a>
                                 </div>
                                 <div class="wsus__single_courses_3_footer">
@@ -69,10 +78,19 @@
                     tabindex="0">
                     <div class="row">
                         @foreach($category->courses as $course)
+                        @php
+                            $totalDuration = 0;
+                            foreach($course->videos as $video){
+                                $totalDuration += $video->duration; // Asumsi duration dalam menit
+                            }
+                        @endphp
                         <div class="col-xl-3 col-md-6 col-lg-4">
                             <div class="wsus__single_courses_3">
                                 <div class="wsus__single_courses_3_img">
-                                    <img src="{{ $course->thumbnailUrl }}" alt="{{ $course->name }}" class="img-fluid">
+                                    <img src="{{ Storage::url($course->thumbnail) }}" class="card-img-top rounded-top" alt="thumbnail" style="height: 200px; object-fit: cover;">
+                                     <span class="time"><i class="far fa-clock"></i>
+                                        {{ floor($totalDuration / 60) }}:{{ str_pad($totalDuration % 60, 2, '0', STR_PAD_LEFT) }} Minutes
+                                    </span>
                                      </div>
                                 <div class="wsus__single_courses_text_3">
                                     <div class="rating_area">
@@ -87,25 +105,19 @@
                                     </div>
                                     <a class="title" href="{{ route('frontend.pages.course-detail', $course->slug) }}">{{ $course->name }}</a>
                                     <ul>
-                                        <li>{{ $course->videos_count }} Lessons</li> {{-- Menampilkan jumlah lessons --}}
-                                        <li>{{ $course->employees_count }} Student</li> {{-- Menampilkan jumlah students --}}
+                                        <li>{{ $course->videos_count }} Lessons</li>
+                                        <li>{{ $course->employees_count }} Student</li>
                                     </ul>
                                     <a class="author" href="#">
                                         <div class="img">
-                                            <img src="images/author_img_2.jpg" alt="Author" class="img-fluid">
+                                            <img src="{{ Storage::url($course->teacher->user->avatar) }}" class="w-100 h-100 object-cover" alt="icon">
                                         </div>
-                                        <h4>{{ $course->teacher->user->name ?? 'Teacher Name' }}</h4> {{-- Menampilkan nama guru --}}
+                                        <h4>{{ $course->teacher->user->name ?? 'Teacher Name' }}</h4>
                                     </a>
                                 </div>
                                 <div class="wsus__single_courses_3_footer">
-                                    <a class="common_btn" href="{{ route('frontend.pages.course-detail', $course->slug) }}">Enroll <i class="far fa-arrow-right"></i></a>
-                                     <p>
-                                        @if($course->discount_price)
-                                            <del>${{ number_format($course->price, 2) }}</del> ${{ number_format($course->discount_price, 2) }}
-                                        @else
-                                            ${{ number_format($course->price, 2) }}
-                                        @endif
-                                    </p>
+                                    <a class="common_btn" href="#">Enroll <i class="far fa-arrow-right"></i></a>
+
                                 </div>
                             </div>
                         </div>
@@ -113,6 +125,11 @@
                     </div>
                 </div>
                 @endforeach
+            </div>
+        </div>
+        <div class="row mt_60 wow fadeInUp">
+            <div class="col-12 text-center">
+                <a class="common_btn" href="{{ route('frontend.pages.courses') }}">Browse More Courses <i class="far fa-angle-right"></i></a>
             </div>
         </div>
     </section>
