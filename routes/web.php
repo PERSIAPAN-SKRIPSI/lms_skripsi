@@ -60,10 +60,12 @@ Route::get('/create-storage-folder', function () {
         return "Error: " . $e->getMessage();
     }
 });
+
 // Frontend Routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/category', [FrontendController::class, 'Category'])->name('frontend.pages.category');
 Route::get('/category/{category:slug}', [FrontendController::class, 'CategoryDetail'])->name('frontend.pages.category-detail');
+Route::get('/courses', [FrontendController::class, 'Courses'])->name('frontend.pages.courses'); // Ubah controller jadi FrontendController dan action jadi Courses
 Route::get('/courses/{course:slug}', [FrontendController::class, 'CourseDetail'])->name('frontend.pages.course-detail');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -78,7 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin|teacher')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::resource('employees', EmployeeController::class);
+
         Route::post('/teachers/check-documents', [TeacherController::class, 'checkDocuments'])->name('teachers.check-documents');
         Route::resource('teachers', TeacherController::class);
         Route::put('teachers/{teacher}/activate', [TeacherController::class, 'activate'])->name('teachers.activate');
@@ -161,11 +163,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Employee Routes
+    // Employee Routes
     Route::prefix('employee')->name('employee.')->middleware('role:employee')->group(function () {
-        Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/courses', [CourseEmployeeController::class, 'index'])->name('courses.index');
-
+        Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard'); // "My Resume" (Dashboard)
+        Route::get('/learning-progress', [EmployeeDashboardController::class, 'learningProgressIndex'])->name('learning-progress.index'); // "Learning Progress"
+        Route::get('/courses', [CourseEmployeeController::class, 'index'])->name('courses.index'); // "My Courses" - Daftar Kursus
+        Route::get('/courses/{course}', [CourseEmployeeController::class, 'show'])->name('courses.show');
+        Route::post('/courses/{course}/enroll', [CourseEmployeeController::class, 'enroll'])->name('courses.enroll');
     });
+
 });
 
 require __DIR__ . '/auth.php';

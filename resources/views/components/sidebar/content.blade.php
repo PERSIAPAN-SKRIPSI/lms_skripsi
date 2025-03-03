@@ -83,12 +83,17 @@
         @if(auth()->user()->hasRole('employee'))
             <div>
                 <h3 class="font-semibold text-gray-900 mb-3 px-3 leading-tight dark:text-white">EMPLOYEE</h3>
-                <x-sidebar.link title="Dashboard" href="{{ route('employee.dashboard') }}" :isActive="$currentRouteName == 'employee.dashboard'">
+                <x-sidebar.link title="My Resume" href="{{ route('employee.dashboard') }}" :isActive="$currentRouteName == 'employee.dashboard'">
                     <x-slot name="icon">
                         <x-icons.dashboard class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" />
                     </x-slot>
                 </x-sidebar.link>
-                <x-sidebar.link title="Courses" href="{{ route('employee.courses.index') }}" :isActive="Str::startsWith($currentRouteName, 'employee.courses.')">
+                <x-sidebar.link title="Learning Progress" href="{{ route('employee.learning-progress.index') }}" :isActive="Str::startsWith($currentRouteName, 'employee.learning-progress.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-chart-bar class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" /> {{-- Ganti icon sesuai keinginan --}}
+                    </x-slot>
+                </x-sidebar.link>
+                <x-sidebar.link title="My Courses" href="{{ route('employee.courses.index') }}" :isActive="Str::startsWith($currentRouteName, 'employee.courses.')">
                     <x-slot name="icon">
                         <x-heroicon-o-collection class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400" aria-hidden="true" />
                     </x-slot>

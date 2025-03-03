@@ -93,16 +93,6 @@
                                     </span>
                                      </div>
                                 <div class="wsus__single_courses_text_3">
-                                    <div class="rating_area">
-                                        <p class="rating">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <span>(4.8 Rating)</span>
-                                        </p>
-                                    </div>
                                     <a class="title" href="{{ route('frontend.pages.course-detail', $course->slug) }}">{{ $course->name }}</a>
                                     <ul>
                                         <li>{{ $course->videos_count }} Lessons</li>

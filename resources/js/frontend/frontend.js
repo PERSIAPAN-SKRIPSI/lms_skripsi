@@ -90,3 +90,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+document.querySelectorAll('.duration-filter').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        let selectedDurations = [];
+        document.querySelectorAll('.duration-filter:checked').forEach(checkedBox => {
+            selectedDurations.push(checkedBox.value);
+        });
+
+        let url = new URL(window.location.href);
+        if (selectedDurations.length > 0) {
+            url.searchParams.set('duration', selectedDurations.join(',')); // Menggunakan koma untuk multiple values jika diperlukan
+        } else {
+            url.searchParams.delete('duration'); // Hapus parameter jika tidak ada yang dipilih
+        }
+        window.location.href = url.toString();
+    });
+});

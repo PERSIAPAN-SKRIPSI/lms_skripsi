@@ -420,7 +420,22 @@
                            {{ $course->students()->count() }}
                         </li>
                      </ul>
-                     <a class="common_btn" href="#">Enroll The Course <i class="far fa-arrow-right"></i></a>
+                     @php
+                     $isEnrolled = \App\Models\CourseEmployee::where('user_id', auth()->id())
+                         ->where('course_id', $course->id)
+                         ->exists();
+                 @endphp
+
+                 @if ($isEnrolled)
+                     <a class="common_btn" href="{{ route('employee.courses.show', $course->slug) }}"> <!-- Ganti dengan route yang benar untuk halaman pembelajaran -->
+                         Lanjutkan Belajar <i class="far fa-arrow-right"></i>
+                     </a>
+                 @else
+                     <form action="{{ route('employee.courses.enroll', $course->slug) }}" method="POST">
+                         @csrf
+                         <button type="submit" class="common_btn">Enroll The Course <i class="far fa-arrow-right"></i></button>
+                     </form>
+                 @endif
                   </div>
                   <div class="wsus__courses_sidebar_info">
                      <h3>This Course Includes</h3>
