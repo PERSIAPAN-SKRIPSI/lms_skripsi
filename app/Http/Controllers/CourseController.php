@@ -352,47 +352,5 @@ class CourseController extends Controller
         return view('admin.courses.show', compact('course'));
     }
 
-    // Employee Enroll logic
-    public function enrollCourse(Request $request, Course $course)
-    {
-        $user = Auth::user();
 
-        // Removed the isPro() check.  You can implement a different
-        // authorization method (e.g., a permission check) if needed.
-
-        // Check if user already enrolled (either approved or pending).
-        if ($course->employees()->where('user_id', $user->id)->exists()) {
-            return back()->with('info', 'You are already enrolled or have a pending enrollment request for this course.');
-        }
-
-        // Attach with is_approved = false (pending).
-        $course->employees()->attach($user, ['enrolled_at' => now(), 'is_approved' => false]);
-
-        return back()->with('success', 'Enrollment request sent successfully. Please wait for approval.');
-    }
-    // Approve course
-    public function updateApproval(Request $request, Course $course)
-    {
-        // Authorization check (usually, only admins or teachers of the course can approve).
-        if (!Auth::user()->hasRole('admin') && !(Auth::user()->hasRole('teacher') && $course->teacher->user_id == Auth::user()->id)) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'is_approved' => 'required|boolean',
-        ]);
-
-        $userId = $request->user_id;
-        $isApproved = $request->is_approved;
-
-        // Ensure the user is actually enrolled.
-        if (!$course->employees()->where('user_id', $userId)->exists()) {
-            return back()->with('error', 'User is not enrolled in this course.');
-        }
-
-        $course->employees()->updateExistingPivot($userId, ['is_approved' => $isApproved]);
-
-        return back()->with('success', 'User enrollment status updated successfully.');
-    }
 }
