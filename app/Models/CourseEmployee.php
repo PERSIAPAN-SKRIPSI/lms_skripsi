@@ -14,6 +14,13 @@ class CourseEmployee extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'enrolled_at', // Tambahkan kolom baru
+        'is_completed', // Tambahkan kolom baru
+        'is_approved', // Pastikan kolom ini ada
+    ];
+     // Add this line to cast 'enrolled_at' to a datetime object
+     protected $casts = [
+        'enrolled_at' => 'datetime',
     ];
     public function course(): BelongsTo
     {

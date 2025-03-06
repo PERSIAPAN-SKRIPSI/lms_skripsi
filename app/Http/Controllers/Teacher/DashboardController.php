@@ -63,4 +63,5 @@ class DashboardController extends Controller
             'studentsCount' => $studentsCount,
         ]);
     }
+
 }

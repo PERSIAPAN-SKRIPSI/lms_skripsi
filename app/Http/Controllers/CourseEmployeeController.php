@@ -4,108 +4,154 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\CourseEmployee;
+use App\Models\Chapter;
+use App\Models\CourseVideo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class CourseEmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function index(): View
     {
         $employeeId = Auth::id();
-
         $enrolledCourses = CourseEmployee::with('course')
             ->where('user_id', $employeeId)
-            ->where('is_approved', true) // Opsional: Hanya kursus yang disetujui
+            ->where('is_approved', true)
             ->get();
 
         return view('employees-dashboard.courses.index', compact('enrolledCourses'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Course $course): View
     {
-        //
+        $employeeId = Auth::id();
+        $isEnrolled = CourseEmployee::where('user_id', $employeeId)
+            ->where('course_id', $course->id)
+            ->where('is_approved', true)
+            ->exists();
+
+        if (!$isEnrolled) {
+            abort(403, 'Anda tidak terdaftar dalam kursus ini.');
+        }
+
+        return view('employees-dashboard.courses.show', compact('course'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    public function learn(Course $course): View
     {
-        //
+        $employeeId = Auth::id();
+
+        $isEnrolled = CourseEmployee::where('user_id', $employeeId)
+            ->where('course_id', $course->id)
+            ->where('is_approved', true)
+            ->exists();
+
+        // dd($isEnrolled, $employeeId, $course->id); // Tambahkan dd() di sini
+
+        if (!$isEnrolled) {
+            abort(403, 'Anda tidak terdaftar dalam kursus ini.');
+        }
+
+        $chapters = Chapter::with('videos')->where('course_id', $course->id)->orderBy('order')->get();
+        $firstVideo = $chapters->first()->videos->first();
+        return view('employees-dashboard.learn.course-player', compact('course', 'chapters', 'firstVideo'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(CourseEmployee $CourseEmployee)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CourseEmployee $CourseEmployee)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CourseEmployee $CourseEmployee)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(CourseEmployee $CourseEmployee)
-    {
-        //
-    }
     public function enroll(Request $request, Course $course)
     {
         $employee = Auth::user();
 
-        // Periksa apakah karyawan sudah terdaftar di kursus ini
         $isEnrolled = CourseEmployee::where('user_id', $employee->id)
             ->where('course_id', $course->id)
             ->exists();
 
         if ($isEnrolled) {
-            // Jika sudah terdaftar, redirect dengan pesan error atau kembali ke halaman kursus dengan pesan
             return Redirect::back()->with('error', 'Anda sudah terdaftar dalam kursus ini.');
         }
 
-        // Mulai transaksi database untuk memastikan atomicity
         DB::beginTransaction();
         try {
-            // Buat record pendaftaran di tabel course_employees
             CourseEmployee::create([
                 'user_id' => $employee->id,
                 'course_id' => $course->id,
-                'enrolled_at' => now(), // Tambahkan waktu pendaftaran
-                'is_approved' => true, // Atur default is_approved menjadi true atau sesuai kebutuhan Anda
+                'enrolled_at' => now(),
+                'is_approved' => false,
             ]);
-
-            DB::commit(); // Commit transaksi jika berhasil
-            // Redirect ke halaman dashboard karyawan atau halaman kursus dengan pesan sukses
-            return redirect()->route('employee.dashboard')->with('success', 'Anda berhasil mendaftar di kursus ' . $course->name . '.');
+            DB::commit();
+            return redirect()->route('employees-dashboard.dashboard')->with('success', 'Pendaftaran kursus berhasil. Menunggu persetujuan.');
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
-            // Log error atau tampilkan pesan error yang lebih informatif
+            DB::rollBack();
             return Redirect::back()->with('error', 'Terjadi kesalahan saat mendaftar kursus. Silakan coba lagi.');
         }
+    }
+
+    public function getLessonContent(Request $request)
+    {
+        $videoId = $request->input('video_id');
+
+        $video = CourseVideo::find($videoId);
+
+        if (!$video) {
+            return response()->json(['error' => 'Video tidak ditemukan.'], 404);
+        }
+
+        return response()->json(['video' => $video]);
+    }
+
+    public function updateWatchHistory(Request $request)
+    {
+        $videoId = $request->input('video_id');
+        $userId = Auth::id();
+        $currentTime = $request->input('current_time');
+
+        $courseVideo = CourseVideo::find($videoId);
+
+        if (!$courseVideo) {
+            return response()->json(['error' => 'Video not found'], 404);
+        }
+
+        $course = $courseVideo->course;
+
+        $isEnrolled = CourseEmployee::where('user_id', $userId)
+            ->where('course_id', $course->id)
+            ->where('is_approved', true)
+            ->exists();
+
+        if (!$isEnrolled) {
+            return response()->json(['error' => 'Anda tidak terdaftar dalam kursus ini.'], 403);
+        }
+
+        return response()->json(['message' => 'Watch history updated successfully']);
+    }
+
+    public function updateLessonCompletion(Request $request)
+    {
+        $videoId = $request->input('video_id');
+        $userId = Auth::id();
+
+        $courseVideo = CourseVideo::find($videoId);
+
+        if (!$courseVideo) {
+            return response()->json(['error' => 'Video not found'], 404);
+        }
+
+        $course = $courseVideo->course;
+
+        $isEnrolled = CourseEmployee::where('user_id', $userId)
+            ->where('course_id', $course->id)
+            ->where('is_approved', true)
+            ->exists();
+
+        if (!$isEnrolled) {
+            return response()->json(['error' => 'Anda tidak terdaftar dalam kursus ini.'], 403);
+        }
+        return response()->json(['message' => 'Lesson completed successfully']);
     }
 }

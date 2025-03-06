@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Teacher extends Model
 {
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'user_id',
         'certificate',

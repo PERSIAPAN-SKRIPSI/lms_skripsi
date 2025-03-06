@@ -150,7 +150,7 @@
                                 </div>
                                 <div class="wsus__single_courses_3_footer">
                                     <a class="common_btn" href="{{ route('frontend.pages.course-detail', $course->slug) }}">Enroll <i class="far fa-arrow-right"></i></a> {{-- Link enroll ke detail kursus --}}
-                                    {{-- Harga di hapus --}}
+                            
                                 </div>
                             </div>
                         </div>

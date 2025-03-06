@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-i6veA-ZG.css",
+    "file": "assets/app-Blxp6ahN.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -19,6 +19,12 @@
     "file": "assets/frontend-C6EHvS5U.js",
     "name": "frontend",
     "src": "resources/js/frontend/frontend.js",
+    "isEntry": true
+  },
+  "resources/js/player.js": {
+    "file": "assets/player-DJEQod82.js",
+    "name": "player",
+    "src": "resources/js/player.js",
     "isEntry": true
   }
 }

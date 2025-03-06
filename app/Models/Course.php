@@ -26,7 +26,7 @@ class Course extends Model
         'demo_video_storage',
         'demo_video_source',
         'description'
-        
+
     ];
 
     protected $casts = [
@@ -78,6 +78,7 @@ class Course extends Model
     }
 
     // Accessor for the full thumbnail URL
+
 // Accessor untuk thumbnail
     public function getThumbnailUrlAttribute(): ?string
     {

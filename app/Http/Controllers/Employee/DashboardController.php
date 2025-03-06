@@ -4,26 +4,36 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\CourseEmployee;
-use Illuminate\Http\Request;
+use App\Models\Course;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    //
-    public function index()
+    public function index(): View
     {
-        $employeeId = Auth::id(); // Mendapatkan ID karyawan yang sedang login
+        $employeeId = Auth::id();
 
-        // Mendapatkan kursus yang diikuti karyawan melalui model CourseEmployee
-        $enrolledCourses = CourseEmployee::with('course') // Eager load relasi 'course'
+        $enrolledCourses = CourseEmployee::with('course')
             ->where('user_id', $employeeId)
-            ->where('is_approved', true) // Hanya menampilkan kursus yang disetujui (opsional)
             ->get();
 
-        return view('employees-dashboard.index', compact('enrolledCourses'));
+        $enrolledCoursesCount = $enrolledCourses->count();
+
+        $activeCoursesCount = $enrolledCourses->where('is_approved', true)->count();
+
+        $pendingCoursesCount = $enrolledCourses->where('is_approved', false)->count();
+        $totalCoursesCreated = Course::count();
+
+        return view('employees-dashboard.dashboard', compact(
+            'enrolledCoursesCount',
+            'activeCoursesCount',
+            'pendingCoursesCount',
+            'totalCoursesCreated'
+        ));
     }
-    public function learningProgressIndex(): View // Method untuk "Learning Progress"
+
+    public function learningProgressIndex(): View
     {
         $employeeId = Auth::id();
 
@@ -32,6 +42,6 @@ class DashboardController extends Controller
             ->where('is_approved', true)
             ->get();
 
-        return view('employees-dashboard.learning-progress.index', compact('enrolledCourses')); // View untuk halaman Learning Progress
+        return view('employees-dashboard.learn.learning-progress', compact('enrolledCourses'));
     }
 }

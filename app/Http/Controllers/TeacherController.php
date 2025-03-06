@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CourseEmployee;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Spatie\Permission\Models\Role;
 
 class TeacherController extends Controller
@@ -307,5 +309,41 @@ class TeacherController extends Controller
 
         $teacher->update(['is_active' => !$teacher->is_active]);
         return back()->with('success', 'Status teacher berhasil diupdate');
+    }
+  /**
+     * Display a listing of employee course enrollments for approval.
+     */
+    public function employeeCoursesIndex()
+    {
+        $employeeCourses = CourseEmployee::with(['employee', 'course'])
+            ->where('is_approved', false)
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.teachers.employee-courses.index', compact('employeeCourses')); // Adjust view path
+    }
+
+    /**
+     * Approve an employee course enrollment.
+     */
+    public function approveEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
+    {
+        $enrollCourse->is_approved = true;
+        $enrollCourse->save();
+
+        Session::flash('success', 'Pendaftaran kursus karyawan berhasil disetujui.');
+        return redirect()->route('admin.teacher.employee-courses.index'); // Adjust route name
+    }
+
+    /**
+     * Reject an employee course enrollment.
+     */
+    public function rejectEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
+    {
+        $enrollCourse->is_approved = false;
+        $enrollCourse->save();
+
+        Session::flash('success', 'Pendaftaran kursus karyawan ditolak.');
+        return redirect()->route('admin.teacher.employee-courses.index'); // Adjust route name
     }
 }

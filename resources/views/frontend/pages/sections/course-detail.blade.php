@@ -2,11 +2,11 @@
 
 @section('content')
    <!--===========================
-              BREADCRUMB START
-              ============================-->
+                 BREADCRUMB START
+                 ============================-->
    <!--===========================
-              BREADCRUMB START
-              ============================-->
+                 BREADCRUMB START
+                 ============================-->
    <section class="wsus__breadcrumb course_details_breadcrumb"
       style="background: url({{ asset('frontend/assets/images/breadcrumb_bg.jpg') }});">
       <div class="wsus__breadcrumb_overlay">
@@ -52,15 +52,15 @@
       </div>
    </section>
    <!--===========================
-               BREADCRUMB END
-               ============================-->
+                  BREADCRUMB END
+                  ============================-->
    <!--===========================
-              BREADCRUMB END
-              ===========================-->
+                 BREADCRUMB END
+                 ===========================-->
 
    <!--===========================
-              COURSES DETAILS START
-              ============================-->
+                 COURSES DETAILS START
+                 ============================-->
    {{-- Course Details Section --}}
    <section class="wsus__courses_details pb_120 xs_pb_100">
       <div class="container">
@@ -420,22 +420,32 @@
                            {{ $course->students()->count() }}
                         </li>
                      </ul>
-                     @php
-                     $isEnrolled = \App\Models\CourseEmployee::where('user_id', auth()->id())
-                         ->where('course_id', $course->id)
-                         ->exists();
-                 @endphp
+                     <div class="enroll-section">
+                        @php
+                           $employee = Auth::user();
+                           $courseEmployee = $employee
+                               ? \App\Models\CourseEmployee::where('user_id', $employee->id)
+                                   ->where('course_id', $course->id)
+                                   ->first()
+                               : null;
+                        @endphp
 
-                 @if ($isEnrolled)
-                     <a class="common_btn" href="{{ route('employee.courses.show', $course->slug) }}"> <!-- Ganti dengan route yang benar untuk halaman pembelajaran -->
-                         Lanjutkan Belajar <i class="far fa-arrow-right"></i>
-                     </a>
-                 @else
-                     <form action="{{ route('employee.courses.enroll', $course->slug) }}" method="POST">
-                         @csrf
-                         <button type="submit" class="common_btn">Enroll The Course <i class="far fa-arrow-right"></i></button>
-                     </form>
-                 @endif
+                        @if (!$employee)
+                           <p>Silakan login untuk mendaftar kursus ini.</p>
+                        @elseif(!$courseEmployee)
+                           <form action="{{ route('employees-dashboard.courses.enroll', $course->id) }}" method="POST">
+                              @csrf
+                              <button class="common_btn" type="submit">Enroll The Course <i
+                                    class="far fa-arrow-right"></i></button>
+                           </form>
+                        @elseif(!$courseEmployee->is_approved)
+                           <p>Menunggu Persetujuan Kursus</p>
+                        @else
+                           <a class="common_btn"
+                              href="{{ route('employees-dashboard.courses.learn', $course->id) }}">Mulai Belajar <i
+                                 class="far fa-arrow-right"></i></a>
+                        @endif
+                     </div>
                   </div>
                   <div class="wsus__courses_sidebar_info">
                      <h3>This Course Includes</h3>
@@ -487,6 +497,6 @@
       </div>
    </section>
    <!--===========================
-       COURSES DETAILS END
-       ============================-->
+          COURSES DETAILS END
+          ============================-->
 @endsection

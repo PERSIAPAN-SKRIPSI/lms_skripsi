@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -32,7 +33,7 @@ class User extends Authenticatable
         'employment_status',
         'join_date',
         'is_active',
-        'is_approved' // Tambahkan is_approved disini
+        'is_approved'
     ];
 
     protected $hidden = [
@@ -56,7 +57,7 @@ class User extends Authenticatable
     public function courses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'course_karyawans')
-         ;
+        ;
     }
 
     public function quizAttempts(): HasMany
@@ -68,45 +69,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(Teacher::class);
     }
-
-
-    public function getAvatarUrlAttribute()
-    {
-        return Storage::url($this->avatar);
-    }
-     /**
-     * Cek apakah user adalah PRO (employee)
-     *     // Attribute to get pro status maksudnya disini tanpa bayar jadi employee bebas memilih dan mempelajari coursess tersebut
-     */
-   /**
-     * Check if user is an approved employee and thus PRO
-     */
-    public function isPro(): bool
-    {
-        return $this->employment_status === 'employee' && $this->is_approved;
-    }
-
-    // Attribute to get pro status maksudnya disini tanpa bayar jadi employee bebas memilih dan mempelajari coursess tersebut
-    public function getProStatusAttribute(): string
-    {
-        if ($this->isPro()) {
-            return 'PRO';
-        } elseif ($this->employment_status === 'employee' && !$this->is_approved) {
-            return 'Pending Approval';
-        } else {
-            return '';
-        }
-    }
-     // Scope untuk mendapatkan hanya karyawan (employees)
- // Scope untuk mendapatkan hanya karyawan (employees)
- public function scopeEmployees(Builder $query): void
- {
-     $query->where('employment_status', 'employee');
- }
-
- // Scope untuk mendapatkan employees yang belum di-approve
- public function scopePendingApproval(Builder $query): void
- {
-     $query->employees()->where('is_approved', false);
- }
 }
