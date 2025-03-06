@@ -20,11 +20,5 @@
     "name": "frontend",
     "src": "resources/js/frontend/frontend.js",
     "isEntry": true
-  },
-  "resources/js/player.js": {
-    "file": "assets/player-DJEQod82.js",
-    "name": "player",
-    "src": "resources/js/player.js",
-    "isEntry": true
   }
 }
