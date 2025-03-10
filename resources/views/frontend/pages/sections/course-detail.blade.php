@@ -433,7 +433,7 @@
                         @if (!$employee)
                            <p>Silakan login untuk mendaftar kursus ini.</p>
                         @elseif(!$courseEmployee)
-                           <form action="{{ route('employees-dashboard.courses.enroll', $course->id) }}" method="POST">
+                           <form action="{{ route('employees-dashboard.courses.enroll', $course->slug) }}" method="POST">
                               @csrf
                               <button class="common_btn" type="submit">Enroll The Course <i
                                     class="far fa-arrow-right"></i></button>
@@ -442,7 +442,7 @@
                            <p>Menunggu Persetujuan Kursus</p>
                         @else
                            <a class="common_btn"
-                              href="{{ route('employees-dashboard.courses.learn', $course->id) }}">Mulai Belajar <i
+                              href="{{ route('employees-dashboard.courses.learn', $course->slug) }}">Mulai Belajar <i
                                  class="far fa-arrow-right"></i></a>
                         @endif
                      </div>
