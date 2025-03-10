@@ -49,6 +49,6 @@ class DashboardController extends Controller
             ->where('is_approved', true)
             ->get();
 
-        return view('employees-dashboard.learn.learning-progress', compact('enrolledCourses'));
+        return view('employees-dashboard.learning-progress', compact('enrolledCourses'));
     }
 }
