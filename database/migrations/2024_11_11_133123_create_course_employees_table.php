@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->timestamp('enrolled_at')->useCurrent();
+            
             $table->boolean('is_completed')->default(false);
             $table->boolean('is_approved')->default(false); // Sesuaikan tipe data dan default sesuai kebutuhan
             $table->timestamps();

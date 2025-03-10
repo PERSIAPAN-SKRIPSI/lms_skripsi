@@ -1,134 +1,190 @@
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-let player;
-let currentVideoId = '{{ $firstVideo->path_video }}'; // Initialize currentVideoId
-
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('main-video', {
-        height: '500',
-        width: '100%',
-        videoId: '{{ $firstVideo->path_video }}',
-        playerVars: {
-            'playsinline': 1
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
-    // Initialize currentVideoId after player is ready, using data attribute from iframe if available
-    const mainVideoIframe = document.getElementById('main-video');
-    if (mainVideoIframe && mainVideoIframe.dataset && mainVideoIframe.dataset.videoId) {
-        currentVideoId = mainVideoIframe.dataset.videoId;
-    }
-}
-
-function onPlayerReady(event) {
-    console.log('Player is Ready');
-}
-
-function onPlayerStateChange(event) {
-    if (event.data === YT.PlayerState.ENDED) {
-        markVideoCompleteAndLoadNext();
-    }
-}
-
-function markVideoCompleteAndLoadNext() {
-    const videoId = document.getElementById('main-video').dataset.videoId;
-    if (!videoId) {
-        console.log("No video ID found for completion tracking.");
-        return;
-    }
-
-    localStorage.setItem(`video-${videoId}`, 'completed');
-    updateCheckbox(videoId);
-
-    loadNextVideo();
-}
-
-function loadNextVideo() {
-    const currentVideoCheckbox = document.querySelector(`.video-checkbox[data-video-id="${currentVideoId}"]`);
-    const nextFormCheck = currentVideoCheckbox?.closest('.form-check')?.nextElementSibling;
-    let nextVideoLink = nextFormCheck?.querySelector('.video-link');
-
-    if (!nextVideoLink) {
-        // Check for next chapter
-        const currentChapter = currentVideoCheckbox?.closest('.accordion-collapse');
-        const nextChapterItem = currentChapter?.closest('.accordion-item')?.nextElementSibling;
-        const nextChapterCollapse = nextChapterItem?.querySelector('.accordion-collapse');
-        nextVideoLink = nextChapterCollapse?.querySelector('.video-link');
-    }
-
-
-    if (nextVideoLink) {
-        const nextVideoId = nextVideoLink.dataset.videoId;
-        const nextVideoPath = nextVideoLink.dataset.videoPath;
-        const nextVideoName = nextVideoLink.dataset.videoName;
-        currentVideoId = nextVideoId; // Update currentVideoId
-        loadVideo(nextVideoId, nextVideoPath, nextVideoName);
-    } else {
-        alert('Congratulations, you have completed all videos in this course!');
-        document.getElementById('complete-video-btn').disabled = true;
-        document.getElementById('complete-video-btn').innerText = "Course Complete";
-    }
-}
-
-
-function loadVideo(videoId, videoPath, videoName) {
-    player.loadVideoById({
-        videoId: videoPath,
-        startSeconds: 0,
-        suggestedQuality: 'large'
-    });
-
-    const videoTitle = document.querySelector('.wsus__course_header a');
-    videoTitle.textContent = videoName;
-
-    // Update video ID of player and checkbox as well
-    const mainVideo = document.getElementById('main-video');
-    mainVideo.dataset.videoId = videoId;
-    currentVideoId = videoId; // Update global currentVideoId
-
-    updateCheckbox(videoId);
-}
-
-function updateCheckbox(videoId) {
-    const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
-    if (checkbox) {
-        const isCompleted = localStorage.getItem(`video-${videoId}`) === 'completed';
-        checkbox.checked = isCompleted === 'completed';
-    }
-}
-
 document.addEventListener('DOMContentLoaded', function() {
+    const videoPlayer = videojs('vid1');
     const videoLinks = document.querySelectorAll('.video-link');
     const videoCheckboxes = document.querySelectorAll('.video-checkbox');
-    const completeButton = document.getElementById('complete-video-btn');
+    const notyf = new Notyf();
+    let currentVideoId = null;
 
-    // Load video when a video link is clicked
-    videoLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+    // Function to load video completion status from the server
+    function loadVideoCompletionStatus() {
+        fetch('/employee/get-video-completion-status', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() }
+        })
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(video => {
+                const checkbox = document.querySelector(`.video-checkbox[data-video-id="${video.video_id}"]`);
+                if (checkbox) {
+                    checkbox.checked = video.is_completed;
+                    checkbox.disabled = video.is_completed;
+                }
+            });
+        })
+        .catch(error => console.error('Error loading video completion status:', error));
+    }
+
+    // Load video completion status when the page is loaded
+    loadVideoCompletionStatus();
+
+    // Function to load and play a video
+      // Function to load video completion status from the server
+      function loadVideoCompletionStatus() {
+        fetch('/employee/get-video-completion-status', { // <--- API endpoint baru
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() }
+        })
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(video => {
+                const checkbox = document.querySelector(`.video-checkbox[data-video-id="${video.video_id}"]`);
+                if (checkbox) {
+                    checkbox.checked = video.is_completed;
+                    checkbox.disabled = video.is_completed;
+                }
+            });
+        })
+        .catch(error => console.error('Error loading video completion status:', error));
+    }
+
+    // Function to reset checkbox state
+    function resetCheckboxState(videoId) {
+        const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+            checkbox.disabled = true;
+        }
+    }
+
+    // Function to handle completion update
+    function handleCompletionUpdate(videoId, isCompleted) {
+        fetch('/employee/update-lesson-completion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() },
+            body: JSON.stringify({ video_id: videoId, is_completed: isCompleted })
+        })
+        .then(response => response.json())
+        .then(data => processCompletionResponse(data, videoId))
+        .catch(error => handleCompletionError(error, videoId));
+    }
+
+    // Function to process completion response
+    function processCompletionResponse(data, videoId) {
+        if (data.message) {
+            notyf.success(data.message);
+            updateVideoNavigation(videoId);
+            switch (data.next_step) {
+                case 'quiz':          window.location.href = `/employee/quiz-info/${data.quiz_id}`; break;
+                case 'next_chapter':  navigateToNextChapter(data.next_chapter_id, data.next_video_id); break;
+                case 'course_completed': notyf.success('Selamat! Kursus telah selesai.'); break;
+                case 'chapter_video_list': console.log('Video selesai dalam chapter.'); break;
+            }
+        } else if (data.error) {
+            notyf.error(data.error);
+            revertCheckboxState(videoId);
+        }
+    }
+
+    // Function to navigate to the next chapter
+    function navigateToNextChapter() {
+        notyf.info('Mengarahkan ke chapter selanjutnya...');
+        setTimeout(() => window.location.reload(), 1500);
+    }
+
+    // Function to handle completion error
+    function handleCompletionError(error, videoId) {
+        console.error('Error:', error);
+        notyf.error('Terjadi kesalahan saat menyimpan progress.');
+        revertCheckboxState(videoId);
+    }
+
+    // Function to revert checkbox state
+    function revertCheckboxState(videoId) {
+        const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
+        if (checkbox) checkbox.checked = false;
+    }
+
+    // Function to get CSRF token
+    function getCsrfToken() {
+        return document.querySelector('meta[name="csrf_token"]').getAttribute('content');
+    }
+
+    // Function to update video navigation
+    function updateVideoNavigation(completedVideoId) {
+        const completedVideoItem = document.querySelector(`.video-item[data-video-id="${completedVideoId}"]`);
+        if (!completedVideoItem) return;
+
+        const nextVideoItem = completedVideoItem.nextElementSibling;
+        if (nextVideoItem && nextVideoItem.classList.contains('video-item')) {
+            const nextVideoLink = nextVideoItem.querySelector('.video-link');
+            if (nextVideoLink) {
+                nextVideoLink.classList.remove('video-link-locked');
+            }
+        }
+    }
+
+    // Event listeners for video links
+    document.querySelectorAll('.video-link').forEach(link => {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            const videoId = this.dataset.videoId;
-            const videoPath = this.dataset.videoPath;
-            const videoName = this.dataset.videoName;
-
-            currentVideoId = videoId; // Update currentVideoId when link is clicked
-            loadVideo(videoId, videoPath, videoName);
+            if (link.classList.contains('video-link-locked')) {
+                notyf.error('Selesaikan video sebelumnya terlebih dahulu.');
+                return;
+            }
+            loadVideo(link.dataset.videoId, link.dataset.videoPath, link.dataset.videoName);
         });
     });
 
-    // Check all video checkboxes on page load
-    videoCheckboxes.forEach(checkbox => {
-        const videoId = checkbox.dataset.videoId;
-        updateCheckbox(videoId);
+    // Event listener for video time update
+    videoPlayer.on('timeupdate', function() {
+        const videoId = videoPlayer.currentVideoId;
+        if (!videoId) return;
+
+        const duration = videoPlayer.duration();
+        const currentTime = videoPlayer.currentTime();
+        const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
+
+        if (checkbox && !checkbox.disabled && !checkbox.checked && duration > 0 && currentTime >= duration * 0.98) {
+            checkbox.disabled = false;
+            checkbox.checked = true;
+            handleCompletionUpdate(videoId, true);
+        } else if (checkbox && checkbox.disabled && duration > 0 && currentTime > 0) {
+            checkbox.disabled = false;
+        }
     });
 
-    // Complete button functionality
-    completeButton.addEventListener('click', function() {
-        markVideoCompleteAndLoadNext();
+    // Event listener for video ended
+    videoPlayer.on('ended', () => {
+        const videoId = videoPlayer.currentVideoId;
+        const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
+        if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            handleCompletionUpdate(videoId, true);
+        }
+    });
+
+    // Prevent manual checkbox interaction
+    videoCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('click', function(e) {
+            e.preventDefault();
+            notyf.error('Checkbox otomatis tercentang setelah video selesai ditonton.');
+        });
+    });
+
+    // Initialize player with first video and disable checkboxes initially
+    const initialVideoLink = document.querySelector('.video-link:not(.video-link-locked)');
+    if (initialVideoLink) {
+        loadVideo(initialVideoLink.dataset.videoId, initialVideoLink.dataset.videoPath, initialVideoLink.dataset.videoName);
+    }
+    videoCheckboxes.forEach(checkbox => checkbox.disabled = true);
+
+    // Lock video links initially, except the first video in each chapter
+    document.querySelectorAll('.video-item').forEach((videoItem, index) => {
+        if (index > 0 ) {
+            const videoLink = videoItem.querySelector('.video-link');
+            if (videoLink) {
+                videoLink.classList.add('video-link-locked');
+            }
+        }
     });
 });

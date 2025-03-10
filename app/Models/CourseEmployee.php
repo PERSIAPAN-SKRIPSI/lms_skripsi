@@ -15,12 +15,14 @@ class CourseEmployee extends Model
         'user_id',
         'course_id',
         'enrolled_at', // Tambahkan kolom baru
-        'is_completed', // Tambahkan kolom baru
+        'is_completed', // Tambahkan ini untuk
         'is_approved', // Pastikan kolom ini ada
+        "video_completions"
     ];
      // Add this line to cast 'enrolled_at' to a datetime object
      protected $casts = [
         'enrolled_at' => 'datetime',
+        'video_completions' => 'array', // Cast video_completions ke arr
     ];
     public function course(): BelongsTo
     {
