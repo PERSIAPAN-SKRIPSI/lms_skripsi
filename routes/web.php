@@ -182,24 +182,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Employee Routes
 
-    // Employee Routes
+        // Employee Routes
     Route::prefix('employee')->name('employees-dashboard.')->middleware('role:employee')->group(function () {
-        // Dashboard & Learning Progress
-        Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/learning-progress', [EmployeeDashboardController::class, 'learningProgressIndex'])->name('learning-progress.index');
+            // Dashboard & Learning Progress
+            Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/learning-progress', [EmployeeDashboardController::class, 'learningProgressIndex'])->name('learning-progress.index');
 
-        // Available Courses & Enrollment
-        Route::controller(CourseEmployeeController::class)->group(function () {
-            Route::get('/courses', 'index')->name('courses.index');
-            // Ubah rute ini untuk menggunakan slug
-            Route::get('/courses/{course:slug}', 'show')->name('courses.show');
-            Route::post('/courses/{course}/enroll', 'enroll')->name('courses.enroll'); // Biarkan rute enroll menggunakan ID
-            // Ubah rute ini untuk menggunakan slug
-            Route::get('/courses/{course:slug}/learn', 'learn')->name('courses.learn');
-            Route::get('/get-lesson-content', 'getLessonContent')->name('get-lesson-content');
-            Route::post('/update-watch-history', 'updateWatchHistory')->name('update-watch-history');
-            Route::post('/update-lesson-completion', 'updateLessonCompletion')->name('update-lesson-completion');
-            // Quiz Routes
+            // Available Courses & Enrollment
+            Route::controller(CourseEmployeeController::class)->group(function () {
+                Route::get('/courses', 'index')->name('courses.index');
+                // Ubah rute ini untuk menggunakan slug
+                Route::get('/courses/{course:slug}', 'show')->name('courses.show');
+                Route::post('/courses/{course}/enroll', 'enroll')->name('courses.enroll'); // Biarkan rute enroll menggunakan ID
+                // Ubah rute ini untuk menggunakan slug
+                Route::get('/courses/{course:slug}/learn', 'learn')->name('courses.learn');
+                Route::get('/get-lesson-content', 'getLessonContent')->name('get-lesson-content');
+                Route::post('/update-watch-history', 'updateWatchHistory')->name('update-watch-history');
+                Route::post('/update-lesson-completion', 'updateLessonCompletion')->name('update-lesson-completion');
+                // Quiz Routes
             Route::get('/get-quiz/{quiz}', 'getQuiz')->name('get-quiz');
             Route::get('/quiz-info/{quiz}', 'showQuizInfo')->name('quiz-info'); // Route baru untuk informasi kuis
             Route::post('/submit-quiz', 'submitQuiz')->name('submit-quiz');

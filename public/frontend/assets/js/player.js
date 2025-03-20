@@ -1,8 +1,13 @@
+/** Notyf init */
+var notyf = new Notyf({
+    duration: 5000,
+    dismissible: true
+});
 document.addEventListener('DOMContentLoaded', function() {
     const videoPlayer = videojs('vid1');
     const videoLinks = document.querySelectorAll('.video-link');
     const videoCheckboxes = document.querySelectorAll('.video-checkbox');
-    const notyf = new Notyf();
+
     let currentVideoId = null;
 
     // Function to load video completion status from the server

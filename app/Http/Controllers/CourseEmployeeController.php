@@ -256,87 +256,96 @@ class CourseEmployeeController extends Controller
      */
     private function getCourseProgress(Course $course, int $employeeId): array
     {
-        Log::info('[getCourseProgress] Start - Course ID: ' . $course->id . ', Employee ID: ' . $employeeId);
+        $courseEmployee = CourseEmployee::where('user_id', $employeeId)
+            ->where('course_id', $course->id)
+            ->first();
 
-        $courseEmployee = $this->getCourseEmployee($employeeId, $course->id);
-        if (!$courseEmployee) {
-            Log::info('[getCourseProgress] CourseEmployee not found.');
+        if (!$courseEmployee || !$courseEmployee->video_completions) {
             return [];
         }
 
-        $completedVideoIds = $courseEmployee->video_completions ?? [];
-        $chapters = $course->chapters()->with(['videos', 'quizzes'])->orderBy('order')->get();
-
-        $progressData = [];
-        foreach ($chapters as $chapter) {
-            Log::info('[getCourseProgress] Processing Chapter: ' . $chapter->name . ' (ID: ' . $chapter->id . ')');
+        $progress = [];
+        foreach ($course->chapters as $chapter) {
             $chapterProgress = [
                 'chapter_id' => $chapter->id,
-                'chapter_name' => $chapter->name,
                 'videos' => [],
-                'quizzes' => [],
+                'quizzes' => []
             ];
+
             foreach ($chapter->videos as $video) {
+                $isCompleted = in_array($video->id, $courseEmployee->video_completions);
+
                 $chapterProgress['videos'][] = [
                     'video_id' => $video->id,
-                    'video_name' => $video->name,
-                    'is_completed' => in_array($video->id, $completedVideoIds),
+                    'is_completed' => $isCompleted
                 ];
+
+
             }
 
-            foreach ($chapter->quizzes as $quiz) {
-                $latestAttempt = QuizAttempt::where('quiz_id', $quiz->id)
-                    ->where('user_id', $employeeId)
-                    ->orderBy('completed_at', 'desc')
-                    ->first();
 
-                $quizCompleted = false;
-                $quizPassed = false;
-                if ($latestAttempt) {
-                    $quizCompleted = true;
-                    $quizPassed = $latestAttempt->status === 'passed';
-                }
+            foreach ($chapter->quizzes as $quiz) {
+
+                $attempt = QuizAttempt::where('quiz_id', $quiz->id)->where('user_id', $employeeId)
+                    ->orderBy('created_at', 'desc')->first();
+
+
+                $isPassed = ($attempt && $attempt->status === 'passed');
 
                 $chapterProgress['quizzes'][] = [
                     'quiz_id' => $quiz->id,
-                    'quiz_title' => $quiz->title,
-                    'is_completed' => $quizCompleted,
-                    'is_passed' => $quizPassed,
+                    'is_passed' => $isPassed
                 ];
-            }
-            $progressData[] = $chapterProgress;
-        }
 
-        Log::info('[getCourseProgress] Progress Data: ' . json_encode($progressData));
-        Log::info('[getCourseProgress] End');
-        return $progressData;
+
+            }
+
+            $progress[] = $chapterProgress;
+        }
+        return $progress;
     }
     /**
      * Handle the next step after a lesson (video) is completed.
      */
-    private function handleLessonCompletionNextStep(CourseVideo $courseVideo, CourseEmployee $courseEmployee)
+    private function handleLessonCompletionNextStep(CourseVideo $video, CourseEmployee $courseEmployee)
     {
-        Log::info('[handleLessonCompletionNextStep] Start - Video ID: ' . $courseVideo->id . ', CourseEmployee ID: ' . $courseEmployee->id);
-        $chapter = $courseVideo->chapter;
-        $videosInChapter = $chapter->videos;
-        $currentVideoIndex = $videosInChapter->search(fn($video) => $video->id == $courseVideo->id);
+        $chapter = $video->chapter;
+        $course = $chapter->course;
+        $userId = $courseEmployee->user_id;
 
-        if ($currentVideoIndex == $videosInChapter->count() - 1) {
-            if ($chapter->quizzes()->exists()) {
-                Log::info('[handleLessonCompletionNextStep] Last video in chapter, quiz exists.');
-                return response()->json([
-                    'message' => 'Video chapter terakhir selesai, selanjutnya kuis.',
-                    'next_step' => 'quiz',
-                    'quiz_id' => $chapter->quizzes->first()->id ?? null,
-                ]);
-            } else {
-                Log::info('[handleLessonCompletionNextStep] Last video in chapter, no quiz, handling chapter completion.');
-                return $this->handleChapterCompletionNextStep($chapter, $courseEmployee);
-            }
-        } else {
-            Log::info('[handleLessonCompletionNextStep] Not last video, next step: chapter_video_list.');
-            return response()->json(['message' => 'Video selesai.', 'next_step' => 'chapter_video_list']);
+        $nextVideo = CourseVideo::where('chapter_id', $chapter->id)
+            ->where('id', '>', $video->id)
+            ->orderBy('id', 'asc')
+            ->first();
+
+        if ($nextVideo) {
+            return response()->json(['message' => 'Lesson marked as completed', 'next_step' => 'chapter_video_list']);
         }
+
+
+        $nextQuiz = Quiz::where('chapter_id', $chapter->id)->first();
+        if ($nextQuiz) {
+
+            return response()->json(['message' => 'Bab selesai. Silakan lanjutkan ke kuis.', 'next_step' => 'quiz', 'quiz_id' => $nextQuiz->id]);
+        }
+
+
+        $nextChapter = Chapter::where('course_id', $course->id)
+                               ->where('order', '>', $chapter->order)
+                               ->orderBy('order', 'asc')
+                               ->first();
+
+
+        if ($nextChapter) {
+
+            return response()->json(['message' => 'Bab selesai. Silakan lanjutkan ke bab selanjutnya.', 'next_step' => 'next_chapter']);
+        }
+
+
+        $courseEmployee->is_completed = true;
+        $courseEmployee->save();
+
+        return response()->json(['message' => 'Kursus selesai!', 'next_step' => 'course_completed']);
     }
 
     /**
@@ -428,11 +437,12 @@ class CourseEmployeeController extends Controller
      */
     private function updateVideoCompletionList(array $videoCompletions, int $videoId, bool $isCompleted): array
     {
-        if ($isCompleted && !in_array($videoId, $videoCompletions)) {
-            $videoCompletions[] = $videoId;
-        } elseif (!$isCompleted && in_array($videoId, $videoCompletions)) {
-            $videoCompletions = array_diff($videoCompletions, [$videoId]);
-            $videoCompletions = empty($videoCompletions) ? null : array_values($videoCompletions); // Re-index array if not empty
+        if ($isCompleted) {
+            if (!in_array($videoId, $videoCompletions)) {
+               $videoCompletions[] = $videoId;
+            }
+        } else {
+           $videoCompletions = array_diff($videoCompletions, [$videoId]);
         }
         return $videoCompletions;
     }
@@ -575,14 +585,10 @@ class CourseEmployeeController extends Controller
             ->exists();
     }
 
-    /**
-     * Get CourseEmployee model instance.
-     */
-    private function getCourseEmployee(int $employeeId, int $courseId): ?CourseEmployee
+    private function getCourseEmployee(int $userId, int $courseId): ?CourseEmployee
     {
-        return CourseEmployee::where('user_id', $employeeId)
+        return CourseEmployee::where('user_id', $userId)
             ->where('course_id', $courseId)
-            ->where('is_approved', true)
             ->first();
     }
 }
