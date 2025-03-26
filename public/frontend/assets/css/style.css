@@ -89,17 +89,17 @@ button {
 
 :root {
     /* **Warna Primer & Sekunder (Lebih Konsisten)** */
-    --colorPrimary: #4361EE;
+    --colorPrimary: #1a47aa;
     --colorPrimaryLight: #E6F0FF;
     --colorPrimaryDark: #3A0CA3;
 
     /* **Warna Pendukung (Lebih Soft & Natural)** */
-    --colorOrange: #FF9E00;
+    --colorOrange: #ee8a08;
     --colorGreen: #2ECC71;
     --colorRed: #FF3E4D;
 
     /* **Warna Netral (Lebih Halus & Readable)** */
-    --colorBlack: #1A1A2E;
+    --colorBlack: #091f69;
     --colorWhite: #FFFFFF;
     --colorGrayDark: #4A4A68;
     --colorGray: #787882;
@@ -112,7 +112,7 @@ button {
     --colorError: var(--colorRed);
 
     /* **Border & Bayangan** */
-    --borderColor: rgba(26, 26, 46, 0.08);
+    --borderColor: rgba(46, 32, 26, 0.08);
     --borderRadius: 12px;
     --shadowSm: 0 2px 8px rgba(26, 26, 46, 0.05);
 
