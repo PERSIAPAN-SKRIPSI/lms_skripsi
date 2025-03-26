@@ -46,7 +46,7 @@
                             <li>Lifetime Access</li>
                         </ul>
                         <a class="common_btn" href="#">Start Free Trial</a>
-                        
+
                     </div>
                 </div>
             </div>

@@ -6,27 +6,20 @@
       <div class="col-xl-6 col-lg-6 wow fadeInUp">
          <div class="wsus__banner_3_text">
             <h5>Show Up For Learning</h5>
-            <h1>Premier E-Learning Courses From <span>EduCore</span></h1>
+            <h1 itemprop="headline">Kembangkan Diri di <span>Taharica</span></h1>
             <p class="description">Tingkatkan kompetensi karyawan PT Taharica dengan platform e-learning interaktif kami.
                Pelatihan terstruktur, progress real-time, akses fleksibel. Asesmen kompetensi sistematis untuk
                pengembangan SDM strategis.</p>
             <div class="wsus__banner_2_btn_area mt_60">
-               <a class="common_btn" href="#">Start Free Trial <i class="far fa-arrow-right"
+               <a class="common_btn" href="{{ route('register') }}">Upgrade Skill <i class="far fa-arrow-right"
                      aria-hidden="true"></i></a>
-               <div class="play_btn_area">
-                  <a class="play_btn venobox vbox-item" data-autoplay="true" data-vbtype="video"
-                     href="https://youtu.be/sVPYIRF9RCQ?si=labNkx-xlyOWtptr">
-                     <img class="img-fluid" src="{{ asset('frontend/assets/images/play_icon.png') }}" alt="Play">
-                  </a>
-                  <h4>See Our Lesson Showcase</h4>
-               </div>
             </div>
          </div>
       </div>
       <div class="col-xl-4 col-lg-6 wow fadeInRight">
          <div class="wsus__banner_3_img">
             <div class="img">
-               <img class="img-fluid" src="{{ asset('frontend/assets/images/banner_3_img_1.png') }}" alt="Banner">
+               <img class="img-fluid" src="{{ asset('frontend/assets/images/homepagee.png') }}" alt="Banner">
 
                <div class="text">
                   <h4>250+ Popular Course</h4>
@@ -54,35 +47,6 @@
          </div>
       </div>
    </div>
-   <ul class="wsus__banner_features d-flex flex-wrap">
-      <li class="green wow fadeInRight">
-         <div class="icon">
-            <img class="img-fluid" src="{{ asset('frontend/assets/images/banner_feature_icon_1.png') }}" alt="Features">
-         </div>
-         <div class="text">
-            <h4>Learn From Experts</h4>
-            <p>LMS allows users to create organize and manage courses.</p>
-         </div>
-      </li>
-      <li class="pink wow fadeInRight">
-         <div class="icon">
-            <img class="img-fluid" src="{{ asset('frontend/assets/images/banner_feature_icon_2.png') }}" alt="Features">
-         </div>
-         <div class="text">
-            <h4>Earn a Certificate</h4>
-            <p>LMS allows users to create organize and manage courses.</p>
-         </div>
-      </li>
-      <li class="sky wow fadeInRight">
-         <div class="icon">
-            <img class="img-fluid" src="{{ asset('frontend/assets/images/banner_feature_icon_3.png') }}" alt="Features">
-         </div>
-         <div class="text">
-            <h4>5400+ Courses</h4>
-            <p>LMS allows users to create organize and manage courses.</p>
-         </div>
-      </li>
-   </ul>
 </section>
 <!--===========================
                     BANNER 3 END

@@ -1,7 +1,8 @@
 /*============================
     GLOBAL CSS START
 ============================*/
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+/* **IMPORT FONT DARI GOOGLE FONTS (Update dengan Font Rekomendasi)** */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 * {
     margin: 0;
@@ -34,6 +35,8 @@ h6 {
     margin: 0;
     padding: 0;
     color: var(--colorBlack);
+    font-family: var(--headingFont); /* Tambahkan font-family untuk heading */
+    font-weight: 700; /* Pastikan heading tetap bold */
 }
 
 p,
@@ -42,12 +45,13 @@ span {
     font-weight: 400;
     margin: 0;
     color: var(--paraColor);
+    font-family: var(--bodyFont); /* Tambahkan font-family untuk body text */
 }
 
 body {
     overflow-x: hidden;
     scroll-behavior: smooth;
-    font-family: var(--bodyFont);
+    font-family: var(--bodyFont); /* Pastikan body menggunakan --bodyFont */
 }
 
 img {
@@ -70,6 +74,7 @@ textarea {
     -moz-border-radius: 6px;
     -ms-border-radius: 6px;
     -o-border-radius: 6px;
+    font-family: var(--bodyFont); /* Gunakan --bodyFont untuk input, select, textarea agar konsisten */
 }
 
 input::placeholder,
@@ -79,21 +84,45 @@ textarea::placeholder {
 
 button {
     border: none;
+    font-family: var(--bodyFont); /* Gunakan --bodyFont untuk button agar konsisten */
 }
 
 :root {
-    --colorPrimary: #356DF1;
-    --colorOrange: #F5D04A;
-    --colorGreen: #43D477;
-    --colorBlack: #1E1E2F;
-    --colorWhite: #ffffff;
-    --paraColor: #787882;
-    --colorLightBg: #EFEFF8;
-    --ratingColor: #FFA121;
-    --borderColor: rgba(30, 30, 47, 0.10);
-    --bodyFont: "Roboto", sans-serif;
-}
+    /* **Warna Primer & Sekunder (Lebih Konsisten)** */
+    --colorPrimary: #4361EE;
+    --colorPrimaryLight: #E6F0FF;
+    --colorPrimaryDark: #3A0CA3;
 
+    /* **Warna Pendukung (Lebih Soft & Natural)** */
+    --colorOrange: #FF9E00;
+    --colorGreen: #2ECC71;
+    --colorRed: #FF3E4D;
+
+    /* **Warna Netral (Lebih Halus & Readable)** */
+    --colorBlack: #1A1A2E;
+    --colorWhite: #FFFFFF;
+    --colorGrayDark: #4A4A68;
+    --colorGray: #787882;
+    --colorLightBg: #F8F9FF;
+
+    /* **Warna Aksen & Feedback** */
+    --ratingColor: #FFB800;
+    --colorSuccess: var(--colorGreen);
+    --colorWarning: var(--colorOrange);
+    --colorError: var(--colorRed);
+
+    /* **Border & Bayangan** */
+    --borderColor: rgba(26, 26, 46, 0.08);
+    --borderRadius: 12px;
+    --shadowSm: 0 2px 8px rgba(26, 26, 46, 0.05);
+
+    /* **Font (Alternatif Soft & Modern - EDISI TERBARU)** */
+    /* Body Font: Prioritaskan Open Sans, lalu Inter, Lato, Nunito Sans, Source Sans Pro, fallback ke Roboto */
+    --bodyFont: "Open Sans", "Inter", "Lato", "Nunito Sans", "Source Sans Pro", "Roboto", sans-serif;
+
+    /* Heading Font: Prioritaskan Montserrat, lalu Poppins, Work Sans, fallback ke Roboto */
+    --headingFont: "Montserrat", "Poppins", "Work Sans", "Roboto", sans-serif;
+}
 .common_btn,
 .common_btn_2 {
     color: var(--colorWhite);
@@ -4852,15 +4881,15 @@ footer {
 .wsus__banner_3::after {
     position: absolute;
     content: "";
-    background: url(../images/banner_3_shapes.png);
+    background: url(../images/shapes.png);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     width: 1000px;
-    height: 200px;
+    height: 280px;
     bottom: 0;
     right: 0;
-    z-index: 1;
+    z-index:2;
 }
 
 .wsus__banner_3_img .text {
@@ -4878,6 +4907,7 @@ footer {
     -moz-border-radius: 6px;
     -ms-border-radius: 6px;
     -o-border-radius: 6px;
+    z-index: 2; /* Pastikan teks di atas shape */
 }
 
 .wsus__banner_3_img .text h4 {
@@ -4904,7 +4934,7 @@ footer {
     height: 30px;
     top: 20px;
     left: 20px;
-    box-shadow: 0px 14px 14px 0px rgba(30, 30, 47, 0.20);
+    box-shadow: 0px 14px 14px 0px rgba(6, 119, 153, 0.2);
 }
 
 .wsus__banner_features {

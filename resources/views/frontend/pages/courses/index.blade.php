@@ -125,16 +125,6 @@
                                     <span class="time"><i class="far fa-clock"></i> {{ floor($totalDuration / 60) }}:{{ str_pad($totalDuration % 60, 2, '0', STR_PAD_LEFT) }} Hours</span> {{-- Total durasi kursus --}}
                                 </div>
                                 <div class="wsus__single_courses_text_3">
-                                    <div class="rating_area">
-                                        <p class="rating">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <span>(4.8 Rating)</span> {{-- Rating statis, perlu data rating dinamis --}}
-                                        </p>
-                                    </div>
 
                                     <a class="title" href="{{ route('frontend.pages.course-detail', $course->slug) }}">{{ $course->name }}</a> {{-- Judul kursus dan link ke detail kursus --}}
                                     <ul>
@@ -150,7 +140,7 @@
                                 </div>
                                 <div class="wsus__single_courses_3_footer">
                                     <a class="common_btn" href="{{ route('frontend.pages.course-detail', $course->slug) }}">Enroll <i class="far fa-arrow-right"></i></a> {{-- Link enroll ke detail kursus --}}
-                            
+
                                 </div>
                             </div>
                         </div>
