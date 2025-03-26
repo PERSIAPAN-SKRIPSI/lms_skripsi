@@ -58,6 +58,31 @@
             </div>
         </div>
     </div>
+    <script>
+           document.addEventListener('DOMContentLoaded', function () {
+            const notyf = window.Notyf; // Akses objek Notyf yang telah diinisialisasi di app.js
+
+            // Notifikasi Sukses
+            @if (session('success'))
+                notyf.success('{{ session('success') }}');
+            @endif
+
+            // Notifikasi Error
+            @if (session('error'))
+                notyf.error('{{ session('error') }}');
+            @endif
+
+            // Notifikasi Warning
+            @if (session('warning'))
+                notyf.warning('{{ session('warning') }}');
+            @endif
+
+            // Notifikasi Info
+            @if (session('info'))
+                notyf.info('{{ session('info') }}');
+            @endif
+        });
+    </script>
 </body>
 
 </html>

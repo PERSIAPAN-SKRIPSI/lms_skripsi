@@ -22,11 +22,13 @@ class QuizRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'passing_score' => ['required', 'integer', 'min:0', 'max:100'],
-            'duration' => ['required', 'integer', 'min:1'], // Duration in minutes
-            'is_active' => ['boolean'],
+         'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'passing_score' => 'required|numeric|min:0',
+        'duration' => 'required|numeric|min:1',
+        'course_id' => 'required|exists:courses,id',
+        'chapter_id' => 'required|exists:chapters,id',
+        'is_active' => 'boolean'
         ];
     }
 
