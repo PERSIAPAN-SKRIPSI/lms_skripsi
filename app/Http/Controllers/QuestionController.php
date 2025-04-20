@@ -26,7 +26,7 @@ class QuestionController extends Controller
     {
         try {
             // Hanya perlu mengirim data quiz ke view
-            return view('admin.quizzes.questions.create', compact('quiz'));
+            return view('admin.quizzes.questions.create', compact('quiz',));
         } catch (\Exception $e) {
             Log::error('Error di QuestionController@create: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat memuat form pembuatan pertanyaan.');
@@ -54,7 +54,7 @@ class QuestionController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.quizzes.questions.index', $quiz->id)
+                ->route('admin.questions.index', $quiz->id)
                 ->with('success', 'Pertanyaan berhasil ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -72,7 +72,7 @@ class QuestionController extends Controller
                 return back()->with('error', 'Pertanyaan tidak ditemukan dalam quiz ini.');
             }
 
-            return view('admin.quizzes.questions.edit', compact('quiz', 'question'));
+            return view('admin.questions.edit', compact('quiz', 'question'));
         } catch (\Exception $e) {
             Log::error('Error di QuestionController@edit: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat memuat form edit pertanyaan.');
@@ -103,7 +103,7 @@ class QuestionController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.quizzes.questions.index', $quiz->id)
+                ->route('admin.questions.index', $quiz->id)
                 ->with('success', 'Pertanyaan berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -126,7 +126,7 @@ class QuestionController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.quizzes.questions.index', $quiz->id)
+                ->route('admin.questions.index', $quiz->id)
                 ->with('success', 'Pertanyaan berhasil dihapus.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -138,6 +138,6 @@ class QuestionController extends Controller
     public function show(Quiz $quiz, Question $question)
     {
         // Logika untuk menampilkan detail pertanyaan
-        return view('admin.quizzes.questions.show', compact('quiz', 'question'));
+        return view('admin.questions.show', compact('quiz', 'question'));
     }
 }
