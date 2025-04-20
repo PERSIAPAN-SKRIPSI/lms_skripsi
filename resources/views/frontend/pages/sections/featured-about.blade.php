@@ -51,7 +51,7 @@
                         <li>Konten Interaktif (Video, Kuis - Dalam Pengembangan)</li>
                     </ul>
                     <!-- Sesuaikan Tombol Aksi -->
-                    <a class="common_btn" href={{ route('register') }}'>Mulai Belajar</a> <!-- Arahkan ke login atau katalog kursus -->
+                    <a class="common_btn" href={{ route('register') }}>Mulai Belajar</a> <!-- Arahkan ke login atau katalog kursus -->
 
                 </div>
             </div>
