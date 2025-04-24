@@ -97,12 +97,7 @@ Membangun platform e-learning yang mendukung:
 | Jenis Evaluasi      | Karakteristik                                                                |
 |---------------------|------------------------------------------------------------------------------|
 | **Kuis Per-Bagian** | Wajib lulus (min 75%) untuk membuka modul berikutnya                         |
-| **Ujian Akhir**     | Menguji pemahaman menyeluruh dengan studi kasus real                         |
-| **Remedial Quiz**   | Opsi pengulangan dengan bank soal acak (jika diaktifkan)                     |
 
-### 📊 Sistem Analitik
-- Real-time dashboard kinerja karyawan
-- Pelaporan kesenjangan kompetensi per departemen
-- Tracking penyelesaian kursus
-- Heatmap kesulitan materi pembelajaran
+
+
 # lms_skripsi
