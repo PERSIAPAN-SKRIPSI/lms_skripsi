@@ -22,25 +22,39 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+   
+
+    public function store(Request $request)
     {
-        $request->authenticate();
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-        $request->session()->regenerate();
+        // Tambahkan parameter remember
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        // Redirect based on user role
-        if ($user->role === 'admin') {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
-        } elseif ($user->role === 'teacher') {
-            return redirect()->intended(route('admin.teachers.dashboard', absolute: false));
-        } elseif ($user->role === 'employee') {
-            return redirect()->intended(route('employee.dashboard', absolute: false));
+            session()->flash('success', 'Login berhasil! Selamat datang di dashboard, ' . $user->name);
+
+            // Redirect berdasarkan role
+            if ($user->role === 'admin') {
+                return redirect()->intended(route('admin.dashboard'));
+            } elseif ($user->role === 'teacher') {
+                return redirect()->intended(route('admin.teachers.dashboard'));
+            } elseif ($user->role === 'employee') {
+                return redirect()->intended(route('employee.dashboard'));
+            }
+
+            return redirect('/');
         }
 
-        // Default redirect if role is not recognized
-        return redirect('/');
+        // Jika gagal
+        return back()->withErrors([
+            'email' => 'Kredensial tidak valid.',
+        ]);
     }
 
     /**
@@ -48,11 +62,16 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $userName = Auth::user()->name;
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        // Flash message logout berhasil
+        session()->flash('success', 'Logout berhasil! Sampai jumpa lagi, ' . $userName);
 
         return redirect('/');
     }

@@ -23,45 +23,49 @@ class RegisteredUserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        // Pisahkan validasi berdasarkan role
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'occupation' => ['required', 'string', 'max:255'],
             'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'role' => ['required', 'in:employee,teacher'], // Gunakan role
+            'role' => ['required', 'in:employee,teacher'],
+        ];
 
-            // Validasi Tambahan untuk Employee
-            'nik' => ['required', 'string', 'max:20', 'unique:users'], // Contoh: Harus unik
-            'gender' => ['required', 'in:male,female'],
-            'date_of_birth' => ['required', 'date'],
-            'address' => ['required', 'string', 'max:255'],
-            'phone_number' => ['required', 'string', 'max:20'],
-            'division' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
-            'employment_status' => ['required', 'string', 'max:255'],
-            'join_date' => ['required', 'date'],
-            'is_active' => ['sometimes', 'boolean'], // 'sometimes' karena mungkin tidak selalu ada di form.
-            //'is_approved' => ['sometimes', 'boolean'], // Seharusnya di set di server, bukan dari form.
+        // Validasi tambahan berdasarkan role yang dipilih
+        if ($request->role === 'employee') {
+            $rules = array_merge($rules, [
+                'nik' => ['required', 'string', 'max:20', 'unique:users'],
+                'gender' => ['required', 'in:male,female'],
+                'date_of_birth' => ['required', 'date'],
+                'address' => ['required', 'string', 'max:255'],
+                'phone_number' => ['required', 'string', 'max:20'],
+                'division' => ['required', 'string', 'max:255'],
+                'position' => ['required', 'string', 'max:255'],
+                'employment_status' => ['required', 'string', 'max:255'],
+                'join_date' => ['required', 'date'],
+            ]);
+        } elseif ($request->role === 'teacher') {
+            $rules = array_merge($rules, [
+                'certificate' => ['required', 'file', 'mimes:pdf,doc,docx,jpeg,png,jpg', 'max:5120'],
+                'cv' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+            ]);
+        }
 
-            // Validasi Tambahan untuk Teacher (Jika diperlukan)
-            'certificate' => ['required_if:role,teacher', 'file', 'mimes:pdf,doc,docx,jpeg,png,jpg', 'max:5120'],
-            'cv' => ['required_if:role,teacher', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
-        ]);
+        $request->validate($rules);
 
         // Upload avatar
         $avatarPath = $request->file('avatar')->store('avatars', 'public');
 
-        // Determine is_approved based on role (only employee needs approval)
-        $isApproved = $request->role !== 'employee';
-
+        // Data user dasar
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'occupation' => $request->occupation,
             'avatar' => $avatarPath,
-            'is_approved' => $isApproved, // Set is_approved
+            'is_approved' => $request->role !== 'employee', // employee perlu approval
         ];
 
         // Tambahkan data employee jika role adalah employee
@@ -76,7 +80,7 @@ class RegisteredUserController extends Controller
                 'position' => $request->position,
                 'employment_status' => $request->employment_status,
                 'join_date' => $request->join_date,
-                'is_active' => $request->is_active ?? false, // Default ke false jika tidak ada
+                'is_active' => $request->is_active ?? false,
             ]);
         }
 
@@ -91,7 +95,7 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
                 'certificate' => $certificatePath,
                 'cv' => $cvPath,
-                'is_active' => false // Need admin approval
+                'is_active' => false
             ]);
         }
 
@@ -99,8 +103,6 @@ class RegisteredUserController extends Controller
         $user->assignRole($request->role);
 
         event(new Registered($user));
-        Auth::login($user);
-
-        return redirect()->route('dashboard');
+        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silahkan login untuk melanjutkan.');
     }
 }
