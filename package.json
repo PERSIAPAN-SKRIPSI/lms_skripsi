@@ -11,6 +11,7 @@
         "alpinejs": "^3.4.2",
         "autoprefixer": "^10.4.2",
         "axios": "^1.7.4",
+        "caniuse-lite": "^1.0.30001715",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.0",
         "perfect-scrollbar": "^1.5.5",
@@ -20,6 +21,7 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "chart.js": "^4.4.9",
         "notyf": "^3.10.0"
     }
 }

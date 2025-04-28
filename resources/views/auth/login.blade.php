@@ -4,26 +4,8 @@
        <div
           class="w-full max-w-md px-4 py-8 bg-white rounded-lg shadow-xl backdrop-blur-sm bg-opacity-90 dark:bg-gray-800">
 
-          <!-- Success Notification -->
-          @if (session('success'))
-             <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100">
-                {{ session('success') }}
-             </div>
-          @endif
-
-          <!-- Error Notification -->
-          @if (session('error'))
-             <div class="mb-4 p-4 rounded-lg bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100">
-                {{ session('error') }}
-             </div>
-          @endif
-
-          <!-- Status Notification (untuk password reset) -->
-          @if (session('status'))
-             <div class="mb-4 p-4 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100">
-                {{ session('status') }}
-             </div>
-          @endif
+          <!-- Notyf Notification Container -->
+          <div id="notyf-container" class="fixed top-5 right-5 z-50 w-80"></div>
 
           <div class="mb-8 text-center">
              <h1
@@ -130,8 +112,48 @@
        </div>
     </div>
 
+    <!-- Notyf JS -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Notyf
+            const notyf = new Notyf({
+                position: {
+                    x: 'right',
+                    y: 'top',
+                },
+                types: [
+                    {
+                        type: 'success',
+                        background: '#10B981',
+                        icon: false,
+                        dismissible: true
+                    },
+                    {
+                        type: 'error',
+                        background: '#EF4444',
+                        icon: false,
+                        dismissible: true
+                    }
+                ]
+            });
+
+            // Show notifications from session
+            @if (session('success'))
+                notyf.success('{{ session('success') }}');
+            @endif
+
+            @if (session('error'))
+                notyf.error('{{ session('error') }}');
+            @endif
+
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    notyf.error('{{ $error }}');
+                @endforeach
+            @endif
+
             // Password Toggle Logic
             const passwordInput = document.getElementById('password-input');
             const togglePasswordButton = document.getElementById('toggle-password');
@@ -163,14 +185,7 @@
             rememberCheckbox.addEventListener('change', updateRememberMeUI);
 
             // Initialize UI States
-            updateRememberMeUI(); // Untuk keadaan awal checkbox
-
-            // Tambahkan handler untuk tutup mata saat ketik password
-            passwordInput.addEventListener('input', () => {
-                if (passwordInput.type === 'text') {
-                    togglePasswordVisibility();
-                }
-            });
+            updateRememberMeUI();
         });
     </script>
- </x-guest-layout>
+</x-guest-layout>

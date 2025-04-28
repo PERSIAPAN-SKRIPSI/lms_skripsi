@@ -331,9 +331,9 @@ class CourseEmployeeController extends Controller
 
 
         $nextChapter = Chapter::where('course_id', $course->id)
-                               ->where('order', '>', $chapter->order)
-                               ->orderBy('order', 'asc')
-                               ->first();
+            ->where('order', '>', $chapter->order)
+            ->orderBy('order', 'asc')
+            ->first();
 
 
         if ($nextChapter) {
@@ -439,10 +439,10 @@ class CourseEmployeeController extends Controller
     {
         if ($isCompleted) {
             if (!in_array($videoId, $videoCompletions)) {
-               $videoCompletions[] = $videoId;
+                $videoCompletions[] = $videoId;
             }
         } else {
-           $videoCompletions = array_diff($videoCompletions, [$videoId]);
+            $videoCompletions = array_diff($videoCompletions, [$videoId]);
         }
         return $videoCompletions;
     }

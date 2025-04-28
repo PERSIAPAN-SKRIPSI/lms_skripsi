@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\User; // Import Model User
+use App\Models\CourseEmployee;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -31,27 +33,48 @@ class DashboardController extends Controller
         }
 
         try {
-            $totalCourses = Course::where('teacher_id', $teacher)->count();
-            $activeCourses = Course::where('teacher_id', $teacher)->where('is_active', true)->count(); // Misalnya, ada kolom is_active di tabel courses
-            $completedCourses = 0; // Logika untuk menentukan kursus yang sudah "selesai" (misalnya, berdasarkan tanggal selesai atau status)
-            $recentCourses = Course::where('teacher_id', $teacher)->latest()->take(5)->get();
+            // Get all courses by this teacher
+            $courses = Course::where('teacher_id', $teacher->id)->get();
+            $totalCourses = $courses->count();
 
-            // Ambil jumlah total student yang mengikuti kursus teacher ini
-            $studentsCount = 0;
-             $courses = Course::where('teacher_id', $teacher)->get(); // Ambil semua course
+            // For active courses, we'll count those with enrolled students
+            $coursesWithStudents = $courses->filter(function($course) {
+                return $course->employees()->count() > 0;
+            });
+            $activeCourses = $coursesWithStudents->count();
+
+            // For completed courses, count courses where at least one student has completed it
+            $completedCourses = 0;
             foreach ($courses as $course) {
-                $studentsCount += $course->employees()->count();  // Menghitung employees di setiap course.
+                $hasCompletedStudents = CourseEmployee::where('course_id', $course->id)
+                    ->where('is_completed', 1)
+                    ->exists();
+
+                if ($hasCompletedStudents) {
+                    $completedCourses++;
+                }
+            }
+
+            $recentCourses = Course::where('teacher_id', $teacher->id)
+                ->latest('created_at')
+                ->take(5)
+                ->get();
+
+            // Get total students enrolled in this teacher's courses
+            $studentsCount = 0;
+            foreach ($courses as $course) {
+                $studentsCount += $course->employees()->count();
             }
 
         } catch (\Exception $e) {
-            Log::error('Failed to retrieve course data for teacher: ' . $teacher . ' - ' . $e->getMessage());
+            Log::error('Failed to retrieve course data for teacher: ' . json_encode($teacher) . ' - ' . $e->getMessage());
             return view('admin.teachers.dashboard', [
                 'error' => 'Terjadi kesalahan saat mengambil data kursus. Silakan coba lagi nanti.',
                 'totalCourses' => 0,
-                 'activeCourses' => 0,
+                'activeCourses' => 0,
                 'completedCourses' => 0,
                 'recentCourses' => collect(),
-                 'studentsCount' => 0
+                'studentsCount' => 0
             ]);
         }
 
@@ -63,5 +86,4 @@ class DashboardController extends Controller
             'studentsCount' => $studentsCount,
         ]);
     }
-
 }

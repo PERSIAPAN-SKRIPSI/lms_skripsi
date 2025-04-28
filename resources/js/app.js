@@ -4,9 +4,13 @@ import Alpine from "alpinejs";
 import collapse from "@alpinejs/collapse";
 import PerfectScrollbar from "perfect-scrollbar";
 
+// Import Chart.js
+import Chart from 'chart.js/auto';
+window.Chart = Chart;
+
 window.PerfectScrollbar = PerfectScrollbar;
 import { Notyf } from 'notyf';
-import 'notyf/notyf.min.css'; // Import CSS Notyf
+import 'notyf/notyf.min.css';
 
 // Initialize Notyf
 const notyf = new Notyf({
@@ -147,7 +151,54 @@ document.addEventListener("alpine:init", () => {
         };
     });
 });
+// Inisialisasi Chart.js di sini
+document.addEventListener('DOMContentLoaded', function() {
+    const chartElement = document.getElementById('quizPerformanceChart');
+    if (chartElement) { // Pastikan elemen ada sebelum mencoba menginisialisasi chart
+        const ctx = chartElement.getContext('2d');
 
+        const chartData = {
+            labels: JSON.parse(chartElement.dataset.labels),
+            datasets: [{
+                label: 'Rata-rata Skor Quiz (%)',
+                data: JSON.parse(chartElement.dataset.data),
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                tension: 0.4
+            }]
+        };
+
+        const chartOptions = {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Skor (%)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: false,
+                }
+            }
+        };
+
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: chartOptions
+        });
+    } else {
+        console.warn('Elemen dengan ID "quizPerformanceChart" tidak ditemukan.');
+    }
+});
 Alpine.plugin(collapse);
 
 Alpine.start();

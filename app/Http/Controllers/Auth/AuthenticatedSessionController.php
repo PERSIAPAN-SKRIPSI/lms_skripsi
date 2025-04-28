@@ -7,14 +7,13 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create()
     {
         return view('auth.login');
     }
@@ -22,7 +21,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-   
+
 
     public function store(Request $request)
     {
@@ -37,7 +36,8 @@ class AuthenticatedSessionController extends Controller
 
             $user = Auth::user();
 
-            session()->flash('success', 'Login berhasil! Selamat datang di dashboard, ' . $user->name);
+              // Notifikasi sukses
+        session()->flash('success', 'Login berhasil! Selamat datang di dashboard, ' . $user->name);
 
             // Redirect berdasarkan role
             if ($user->role === 'admin') {
@@ -67,7 +67,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         // Flash message logout berhasil
