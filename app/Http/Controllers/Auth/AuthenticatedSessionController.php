@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -21,8 +23,6 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-
-
     public function store(Request $request)
     {
         $credentials = $request->validate([
@@ -34,33 +34,26 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            // Dapatkan user yang login
             $user = Auth::user();
 
-              // Notifikasi sukses
-        session()->flash('success', 'Login berhasil! Selamat datang di dashboard, ' . $user->name);
+            // Notifikasi sukses
+            Alert::success('Berhasil!', 'Login berhasil! Selamat datang, ' . $user->name);
 
-            // Redirect berdasarkan role
-            if ($user->role === 'admin') {
-                return redirect()->intended(route('admin.dashboard'));
-            } elseif ($user->role === 'teacher') {
-                return redirect()->intended(route('admin.teachers.dashboard'));
-            } elseif ($user->role === 'employee') {
-                return redirect()->intended(route('employee.dashboard'));
-            }
-
-            return redirect('/');
+            // Redirect ke dashboard
+            return redirect()->route('dashboard');
         }
 
         // Jika gagal
-        return back()->withErrors([
+        Alert::error('Gagal!', 'Kredensial tidak valid. Periksa email dan password Anda.');
+        return back()->withInput()->withErrors([
             'email' => 'Kredensial tidak valid.',
         ]);
     }
 
     /**
      * Destroy an authenticated session.
-     */
-    public function destroy(Request $request): RedirectResponse
+     */ public function destroy(Request $request): RedirectResponse
     {
         $userName = Auth::user()->name;
 
@@ -70,8 +63,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         // Flash message logout berhasil
-        session()->flash('success', 'Logout berhasil! Sampai jumpa lagi, ' . $userName);
+        Alert::success('Berhasil!', 'Logout berhasil! Sampai jumpa lagi, ' . $userName);
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Logout berhasil!');
     }
 }

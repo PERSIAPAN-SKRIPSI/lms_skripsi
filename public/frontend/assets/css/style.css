@@ -22344,3 +22344,15 @@ select {
       background-color: transparent; /* No background hover effect on locked videos */
       color: #999; /* Keep lighter color on hover */
    }
+   .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }

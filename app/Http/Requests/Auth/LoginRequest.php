@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
-
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class LoginRequest extends FormRequest
 {
@@ -19,7 +19,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ];
@@ -29,41 +29,55 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $credentials = $this->only('email', 'password');
-        $remember = $this->boolean('remember');
-
-        if (!Auth::attempt($credentials, $remember)) {
+        if (! $this->attemptAuthentication()) {
             RateLimiter::hit($this->throttleKey());
 
-            // Menjadi:
-            session()->flash('error', 'Kredensial tidak valid!'); // ✨ Simpan error di session
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
+            $this->throwFailedAuthenticationException();
         }
 
         RateLimiter::clear($this->throttleKey());
     }
 
+    protected function attemptAuthentication(): bool
+    {
+        return Auth::attempt(
+            $this->only('email', 'password'),
+            $this->boolean('remember')
+        );
+    }
+
+    protected function throwFailedAuthenticationException(): void
+    {
+        Alert::error('Gagal!', 'Email atau password yang Anda masukkan salah.');
+
+        throw ValidationException::withMessages([
+            'email' => __('auth.failed'),
+        ]);
+    }
+
     public function ensureIsNotRateLimited(): void
     {
-        if (RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
-            $seconds = RateLimiter::availableIn($this->throttleKey());
-
-            session()->flash("Terlalu banyak percobaan. Silakan coba lagi dalam {$seconds} detik.");
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.throttle', [
-                    'seconds' => $seconds,
-                    'minutes' => ceil($seconds / 60),
-                ]),
-            ]);
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+            return;
         }
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        Alert::warning(
+            'Peringatan!',
+            "Anda telah melebihi batas percobaan login. Silakan coba lagi dalam {$seconds} detik."
+        );
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
     }
 
     public function throttleKey(): string
     {
-        return Str::lower($this->input('email')) . '|' . $this->ip();
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
     }
 }

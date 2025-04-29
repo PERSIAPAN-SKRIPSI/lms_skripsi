@@ -45,6 +45,40 @@
                         {{ __('Log Out') }}
                     </x-dropdown-link>
                 </form>
+
+                @push('scripts')
+                    <script>
+                        function submit(element) {
+                            Swal.fire({
+                                title: 'Apakah Anda yakin ingin keluar?',
+                                text: "Anda akan diarahkan ke halaman login.",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ya, Logout!',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // Tampilkan notifikasi "Sedang Logout..."
+                                    Swal.fire({
+                                        title: 'Sedang Logout...',
+                                        text: 'Harap tunggu sebentar.',
+                                        icon: 'info',
+                                        showConfirmButton: false,
+                                        allowOutsideClick: false,
+                                        timer: 1500 // Optional: Hilangkan setelah 1.5 detik
+                                    });
+
+                                    // Submit form setelah notifikasi "Sedang Logout..." muncul
+                                    setTimeout(function() {
+                                        element.closest('form').submit();
+                                    }, 1500); // Delay 1.5 detik
+                                }
+                            })
+                        }
+                    </script>
+                @endpush
             </x-slot>
         </x-dropdown>
     </div>
