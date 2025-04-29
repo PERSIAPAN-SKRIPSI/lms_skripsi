@@ -84,6 +84,8 @@
          @endforeach
       @endif
    </script>
+      <!-- Tambahkan directive stack scripts di sini -->
+      @stack('scripts')
 </body>
 
 </html>
