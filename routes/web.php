@@ -135,6 +135,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('performance', [QuizMonitoringController::class, 'performance'])->name('performance');
             Route::get('completion', [QuizMonitoringController::class, 'completion'])->name('completion');
             Route::get('user-attempts', [QuizMonitoringController::class, 'userAttempts'])->name('user-attempts'); // Route baru
+            Route::get('performance/filter', [QuizMonitoringController::class, 'performanceFilter'])->name('performance.filter');
+
         });
         // Course Video Routes
         Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
@@ -193,7 +195,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('/courses', 'index')->name('courses.index');
                 // Ubah rute ini untuk menggunakan slug
                 Route::get('/courses/{course:slug}', 'show')->name('courses.show');
-                Route::post('/courses/{course}/enroll', 'enroll')->name('courses.enroll'); // Biarkan rute enroll menggunakan ID
+                Route::post('/courses/{course:slug}/enroll', 'enroll')->name('courses.enroll'); // Ubah nama route menjadi employees-dashboard.courses.enroll
                 // Ubah rute ini untuk menggunakan slug
                 Route::get('/courses/{course:slug}/learn', 'learn')->name('courses.learn');
                 Route::get('/get-lesson-content', 'getLessonContent')->name('get-lesson-content');

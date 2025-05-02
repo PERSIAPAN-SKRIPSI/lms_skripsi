@@ -43,7 +43,11 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
+                                                    @if($attemptsForQuiz->first()->quiz)
                                                     {{ $attemptsForQuiz->first()->quiz->title }}
+                                                @else
+                                                    Quiz Not Found
+                                                @endif
                                                 </div>
                                                 <div class="text-sm text-gray-500">
                                                     {{ __('Quiz ID:') }} {{ $quizId }}

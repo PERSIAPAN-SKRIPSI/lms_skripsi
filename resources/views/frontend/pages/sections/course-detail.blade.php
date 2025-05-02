@@ -429,22 +429,18 @@
                                    ->first()
                                : null;
                         @endphp
-
-                        @if (!$employee)
-                           <p>Silakan login untuk mendaftar kursus ini.</p>
-                        @elseif(!$courseEmployee)
-                           <form action="{{ route('employees-dashboard.courses.enroll', $course->slug) }}" method="POST">
-                              @csrf
-                              <button class="common_btn" type="submit">Enroll The Course <i
-                                    class="far fa-arrow-right"></i></button>
-                           </form>
-                        @elseif(!$courseEmployee->is_approved)
-                           <p>Menunggu Persetujuan Kursus</p>
-                        @else
-                           <a class="common_btn"
-                              href="{{ route('employees-dashboard.courses.learn', $course->slug) }}">Mulai Belajar <i
-                                 class="far fa-arrow-right"></i></a>
-                        @endif
+@if (!$employee)
+<p>Silakan login untuk mendaftar kursus ini.</p>
+@elseif(!$courseEmployee)
+<form action="{{ route('employees-dashboard.courses.enroll', $course->id) }}" method="POST">
+   @csrf
+   <button class="common_btn" type="submit">Enroll The Course <i class="far fa-arrow-right"></i></button>
+</form>
+@elseif(!$courseEmployee->is_approved)
+<p>Menunggu Persetujuan Kursus</p>
+@else
+<a class="common_btn" href="{{ route('employees-dashboard.courses.learn', $course->slug) }}">Mulai Belajar <i class="far fa-arrow-right"></i></a>
+@endif
                      </div>
                   </div>
                   <div class="wsus__courses_sidebar_info">
