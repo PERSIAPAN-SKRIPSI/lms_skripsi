@@ -171,11 +171,9 @@ class QuizMonitoringController extends Controller
         ]);
     }
 
-    public function completion()
+   public function completion()
     {
-        $completedQuizzesCount = User::whereHas('quizAttempts', function ($query) {
-            $query->whereNotNull('completed_at');
-        })->count();
+        $completedQuizzesCount = QuizAttempt::whereNotNull('completed_at')->count();
 
         $mostAttemptedQuiz = QuizAttempt::select('quiz_id', DB::raw('COUNT(*) as total_attempts'))
             ->groupBy('quiz_id')
@@ -189,7 +187,7 @@ class QuizMonitoringController extends Controller
             ->with('quiz')
             ->first();
 
-        // Get data for the Quiz Attempts Chart
+        // Data untuk chart quiz attempts
         $quizAttempts = Quiz::select('quizzes.id', 'quizzes.title as quiz_title')
             ->leftJoin('quiz_attempts', 'quizzes.id', '=', 'quiz_attempts.quiz_id')
             ->selectRaw('quizzes.title as quiz_title, quizzes.id as quiz_id, COUNT(quiz_attempts.id) as attempt_count')
@@ -200,7 +198,7 @@ class QuizMonitoringController extends Controller
             ->get();
 
         $quizAttempts = $quizAttempts->map(function ($quiz) {
-            $userNames = $quiz->attempts->pluck('user.name')->unique()->toArray(); // Collect unique user names
+            $userNames = $quiz->attempts->pluck('user.name')->unique()->toArray();
             return [
                 'quiz_title' => $quiz->quiz_title,
                 'attempt_count' => (int)$quiz->attempt_count,
@@ -212,7 +210,7 @@ class QuizMonitoringController extends Controller
             'completedQuizzesCount',
             'mostAttemptedQuiz',
             'leastAttemptedQuiz',
-            'quizAttempts' // Pass the chart data to the view
+            'quizAttempts'
         ));
     }
     public function userAttempts()

@@ -26,10 +26,10 @@ class QuizAttempt extends Model
     ];
 
     // Relasi ke Quiz
-    public function quiz(): BelongsTo
-    {
-        return $this->belongsTo(Quiz::class);
-    }
+public function quiz(): BelongsTo
+{
+    return $this->belongsTo(Quiz::class)->withTrashed();
+}
 
     // Relasi ke User
     public function user(): BelongsTo

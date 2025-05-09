@@ -33,7 +33,7 @@
                                     <span>
                                         @if ($category->icon)
                                             <img src="{{ filter_var($category->icon, FILTER_VALIDATE_URL) ? $category->icon : Storage::url($category->icon) }}"
-                                                alt="Image" class="img-fluid w-100 ">
+                                                alt="Image" class="img-fluid w-100">
                                         @else
                                             <div class="category-placeholder">
                                                 <svg class="w-10 h-10" fill="none" stroke="currentColor"
@@ -51,8 +51,10 @@
                                 @if ($category->children->count() > 0)
                                     <ul class="category_sub_menu">
                                         @foreach ($category->children as $subcategory)
-                                            <li><a
-                                                    href="{{ route('frontend.pages.category', ['category' => $category->slug, 'subcategory' => $subcategory->slug]) }}">{{ $subcategory->name }}</a>
+                                            <li>
+                                                <a href="{{ route('frontend.pages.category', ['category' => $category->slug, 'subcategory' => $subcategory->slug]) }}">
+                                                    {{ $subcategory->name }}
+                                                </a>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -81,13 +83,12 @@
             </ul>
 
             <!-- Right Menu -->
-            <div class="right_menu ">
+            <div class="right_menu">
                 @auth
                     <div class="d-flex align-items-center gap-2">
                         <!-- Profile Info (Kiri) -->
                         <div class="profile-info d-none d-md-block">
                             <p class="mb-0 fw-semibold text-nowrap" style="color: #333333;">
-                                Halo, {{ Auth::user()->name }}
                                 @if (Auth::user()->hasRole('admin'))
                                     (Admin)
                                 @elseif (Auth::user()->hasRole('teacher'))
@@ -141,27 +142,66 @@
 ==============================-->
 <div class="mobile_menu_area d-lg-none">
     <div class="mobile_menu_area_top d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
-        <!-- Added bg-white and border-bottom -->
         <a class="mobile_menu_logo" href="{{ url('/') }}">
             <img src="{{ asset('frontend/assets/images/logo.png') }}" alt="EduCore" class="img-fluid"
                 style="max-height: 40px;">
         </a>
         <button class="mobile_menu_icon d-block d-lg-none" data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
-            <span class="mobile_menu_icon"><i class="far fa-stream menu_icon_bar"></i></span>
+            <span class="mobile_menu_icon=>
+        <span class="mobile_menu_icon"><i class="far fa-stream menu_icon_bar"></i></span>
         </button>
     </div>
 
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions">
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"><i
-                class="fal fa-times"></i></button>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close">
+            <i class="fal fa-times"></i>
+        </button>
         <div class="offcanvas-body">
             <div class="mobile_menu_item_area">
+                <!-- Profile Section for Logged-In Users -->
+                @auth
+                    <div class="mobile_menu_header p-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Profile Avatar (Kiri) -->
+                            <div class="profile-avatar-wrapper position-relative">
+                                <a href="{{ route('dashboard') }}" class="profile-avatar rounded-circle overflow-hidden"
+                                    aria-label="Dashboard">
+                                    @if (Auth::user()->avatar)
+                                        <img src="{{ Storage::url(Auth::user()->avatar) }}" class="w-100 h-100 object-cover"
+                                            alt="{{ Auth::user()->name }}'s Profile">
+                                    @else
+                                        <img src="{{ asset('path/to/default/avatar.png') }}" class="w-100 h-100 object-cover"
+                                            alt="{{ Auth::user()->name }}'s Profile">
+                                    @endif
+                                </a>
+                            </div>
+
+                            <!-- Profile Info (Kanan) -->
+                            <div>
+                                <p class="mb-0 fw-semibold" style="color: #333333;">
+                                    {{ Auth::user()->name }}
+                                    @if (Auth::user()->hasRole('admin'))
+                                        (Admin)
+                                    @elseif (Auth::user()->hasRole('teacher'))
+                                        (Teacher)
+                                    @elseif (Auth::user()->hasRole('employee'))
+                                        (Employee)
+                                    @else
+                                        (User)
+                                    @endif
+                                </p>
+                                <a href="{{ route('dashboard') }}" class="text-muted small">Lihat Profil</a>
+                            </div>
+                        </div>
+                    </div>
+                @endauth
+
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
                             data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home"
-                            aria-selected="true">Menu</button> <!-- Updated "menu" to "Menu" -->
+                            aria-selected="true">Menu</button>
                         <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab"
                             data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile"
                             aria-selected="false">Categories</button>
@@ -173,8 +213,22 @@
                         <ul class="main_mobile_menu">
                             <li><a href="{{ url('/') }}">Home</a></li>
                             <li><a href="#">About Us</a></li>
+                            <li><a href="{{ route('frontend.pages.courses') }}">Courses</a></li>
                             <li><a href="#">Blog</a></li>
                             <li><a href="#">Contact Us</a></li>
+                            <!-- Add Login/Logout Options -->
+                            @auth
+                                <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+                                    </form>
+                                </li>
+                            @else
+                                <li><a href="{{ route('login') }}">Sign In</a></li>
+                                <li><a href="{{ route('register') }}">Sign Up</a></li>
+                            @endauth
                         </ul>
                     </div>
                     <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab"
@@ -189,7 +243,6 @@
                                                     <img src="{{ filter_var($category->icon, FILTER_VALIDATE_URL) ? $category->icon : Storage::url($category->icon) }}"
                                                         alt="{{ $category->name }}" class="img-fluid rounded-circle"
                                                         style="width: 24px; height: 24px; object-fit: cover;">
-                                                    <!-- Bulatkan icon -->
                                                 @else
                                                     <div class="category-placeholder rounded-circle d-flex justify-content-center align-items-center"
                                                         style="width: 24px; height: 24px; background-color: #EEEEEE;">
@@ -209,8 +262,10 @@
                                         @if ($category->children->count() > 0)
                                             <ul class="inner_menu">
                                                 @foreach ($category->children as $subcategory)
-                                                    <li><a
-                                                            href="{{ route('frontend.pages.category', ['category' => $category->slug, 'subcategory' => $subcategory->slug]) }}">{{ $subcategory->name }}</a>
+                                                    <li>
+                                                        <a href="{{ route('frontend.pages.category', ['category' => $category->slug, 'subcategory' => $subcategory->slug]) }}">
+                                                            {{ $subcategory->name }}
+                                                        </a>
                                                     </li>
                                                 @endforeach
                                             </ul>
@@ -220,43 +275,7 @@
                             @endforeach
                         </ul>
                     </div>
-                    @auth
-                    <div class="mobile_menu_header p-3 border-bottom">
-                        <div class="d-flex align-items-center gap-3">
-                            <!-- Profile Avatar (Kiri) -->
-                            <div class="profile-avatar-wrapper position-relative">
-                                <a href="{{ route('dashboard') }}" class="profile-avatar rounded-circle overflow-hidden"
-                                    aria-label="Dashboard">
-                                    @if (Auth::user()->avatar)
-                                        <img src="{{ Storage::url(Auth::user()->avatar) }}" class="w-100 h-100 object-cover"
-                                            alt="{{ Auth::user()->name }}'s Profile">
-                                    @else
-                                        <img src="{{ asset('path/to/default/avatar.png') }}" class="w-100 h-100 object-cover"
-                                            alt="{{ Auth::user()->name }}'s Profile">
-                                    @endif
-                                </a>
-                            </div>
-
-                            <!-- Profile Info (Kanan) -->
-                            <div>
-                                <p class="mb-0 fw-semibold" style="color: #333333;">{{ Auth::user()->name }}
-                                    @if (Auth::user()->hasRole('admin'))
-                                        (Admin)
-                                    @elseif (Auth::user()->hasRole('teacher'))
-                                        (Teacher)
-                                    @elseif (Auth::user()->hasRole('employee'))
-                                        (Employee)
-                                    @else
-                                        (User) <!-- Default role jika tidak ada role yang sesuai -->
-                                    @endif
-                                </p>
-                                <a href="{{ route('dashboard') }}" class="text-muted small">Lihat Profil</a>
-                            </div>
-                        </div>
-                    </div>
-                @endauth
                 </div>
-
             </div>
         </div>
     </div>

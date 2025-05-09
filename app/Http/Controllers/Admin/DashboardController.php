@@ -6,64 +6,69 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use App\Models\Teacher; // Ensure Teacher Model is imported
+use App\Models\Teacher;
 use App\Models\User;
+use Illuminate\Http\Request; // Tambahkan ini
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     /**
      * Show the admin dashboard.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        // Statistik Kuis
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Statistik Kuis (dengan filter tanggal)
         $totalQuizzes = Quiz::count();
-        $totalQuizAttempts = QuizAttempt::count();
-        $averageQuizScore = QuizAttempt::avg('score') ?? 0;
-        $quizPassingRate = ($totalQuizAttempts > 0) ? (QuizAttempt::where('status', 'passed')->count() / $totalQuizAttempts) * 100 : 0;
+        $totalQuizAttempts = QuizAttempt::when($startDate, function ($query, $startDate) use ($endDate) {
+                return $query->whereBetween('created_at', [$startDate, $endDate ?? now()]);
+            })->count();
 
-        $mostAttemptedQuiz = QuizAttempt::select('quiz_id', DB::raw('COUNT(*) as total_attempts'))
-            ->groupBy('quiz_id')
-            ->orderByDesc('total_attempts')
-            ->first();
+        $averageQuizScore = QuizAttempt::when($startDate, function ($query, $startDate) use ($endDate) {
+                return $query->whereBetween('created_at', [$startDate, $endDate ?? now()]);
+            })->avg('score') ?? 0;
 
-        $leastAttemptedQuiz = QuizAttempt::select('quiz_id', DB::raw('COUNT(*) as total_attempts'))
-            ->groupBy('quiz_id')
-            ->orderBy('total_attempts')
-            ->first();
+        $quizPassingRate = 0;
+        $filteredQuizAttemptsCount = QuizAttempt::when($startDate, function ($query, $startDate) use ($endDate) {
+            return $query->whereBetween('created_at', [$startDate, $endDate ?? now()]);
+        })->count();
 
-        // Metrik User Access & Attempts (Baru Ditambahkan)
-        $uniqueUsersAttemptingQuizzes = QuizAttempt::distinct('user_id')->count(); // Jumlah user unik yang mencoba kuis
-        $totalUsersAccessingQuizzes = User::whereHas('quizAttempts')->count(); // Jumlah user yang pernah mencoba kuis (proxy untuk access)
+        if ($filteredQuizAttemptsCount > 0) {
+            $passedQuizAttemptsCount = QuizAttempt::where('status', 'passed')
+                ->when($startDate, function ($query, $startDate) use ($endDate) {
+                    return $query->whereBetween('created_at', [$startDate, $endDate ?? now()]);
+                })->count();
+            $quizPassingRate = ($passedQuizAttemptsCount / $filteredQuizAttemptsCount) * 100;
+        }
 
 
         // Data lain (tetap ada, atau bisa disesuaikan)
         $totalUsers = User::count();
         $totalCourses = Course::count();
         $pendingTeachers = User::where('employment_status', 'teacher')->where('is_active', false)->count();
-        $activeTeachers = User::where('employment_status', 'teacher')->where('is_active', true)->count(); // Calculate active teachers
-        $teachersCreatingCourses = Teacher::has('courses')->count(); // Calculate teachers creating courses
-
+        $activeTeachers = User::where('employment_status', 'teacher')->where('is_active', true)->count();
+        $teachersCreatingCourses = Teacher::has('courses')->count();
 
         // Kirim data ke view
         return view('admin.dashboard', [
             'totalUsers' => $totalUsers,
             'totalCourses' => $totalCourses,
             'pendingTeachers' => $pendingTeachers,
-            'activeTeachers' => $activeTeachers, // Pass activeTeachers to the view
-            'teachersCreatingCourses' => $teachersCreatingCourses, // Pass teachersCreatingCourses to the view
-
+            'activeTeachers' => $activeTeachers,
+            'teachersCreatingCourses' => $teachersCreatingCourses,
 
             'totalQuizzes' => $totalQuizzes,
             'totalQuizAttempts' => $totalQuizAttempts,
             'averageQuizScore' => $averageQuizScore,
             'quizPassingRate' => $quizPassingRate,
-            'mostAttemptedQuiz' => $mostAttemptedQuiz,
-            'leastAttemptedQuiz' => $leastAttemptedQuiz,
-            'uniqueUsersAttemptingQuizzes' => $uniqueUsersAttemptingQuizzes, // Data baru
-            'totalUsersAccessingQuizzes' => $totalUsersAccessingQuizzes, // Data baru
+
+            'startDate' => $startDate, // Kirim tanggal ke view
+            'endDate' => $endDate,     // Kirim tanggal ke view
         ]);
     }
 }

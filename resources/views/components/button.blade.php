@@ -1,5 +1,5 @@
 @props([
-    'variant' => 'default', // Ubah default ke 'default'
+    'variant' => 'default',
     'iconOnly' => false,
     'srText' => '',
     'href' => false,
@@ -7,90 +7,131 @@
     'disabled' => false,
     'pill' => false,
     'squared' => false,
-    'outlined' => false // Tambah opsi outline
+    'outlined' => false,
+    'flat' => false,
+    'loading' => false,
+    'icon' => false,
+    'iconPosition' => 'left',
+    'shadow' => false
 ])
 
 @php
-    $baseClasses = 'inline-flex items-center transition-colors font-medium select-none disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2'; // Hapus focus:ring-offset-white
+    $baseClasses = 'inline-flex items-center justify-center transition-all duration-200 font-medium select-none disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none gap-x-2';
 
-     // Warna dasar (default)
-    $defaultClasses = 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:focus:ring-gray-600';
+    // Base color variants
+    if ($outlined) {
+        $variants = [
+            'primary' => 'text-blue-600 border border-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500/50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-950',
+            'secondary' => 'text-gray-600 border border-gray-300 hover:bg-gray-50 focus:ring-2 focus:ring-gray-400/50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800',
+            'success' => 'text-emerald-600 border border-emerald-600 hover:bg-emerald-50 focus:ring-2 focus:ring-emerald-500/50 dark:text-emerald-400 dark:border-emerald-400 dark:hover:bg-emerald-950',
+            'danger' => 'text-red-600 border border-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500/50 dark:text-red-400 dark:border-red-400 dark:hover:bg-red-950',
+            'warning' => 'text-amber-600 border border-amber-600 hover:bg-amber-50 focus:ring-2 focus:ring-amber-500/50 dark:text-amber-400 dark:border-amber-400 dark:hover:bg-amber-950',
+            'info' => 'text-sky-600 border border-sky-600 hover:bg-sky-50 focus:ring-2 focus:ring-sky-500/50 dark:text-sky-400 dark:border-sky-400 dark:hover:bg-sky-950',
+            'default' => 'text-gray-600 border border-gray-300 hover:bg-gray-50 focus:ring-2 focus:ring-gray-400/50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800',
+        ];
+    } elseif ($flat) {
+        $variants = [
+            'primary' => 'text-blue-600 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-950',
+            'secondary' => 'text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-gray-400/20 dark:text-gray-300 dark:hover:bg-gray-800',
+            'success' => 'text-emerald-600 hover:bg-emerald-50 focus:ring-2 focus:ring-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-950',
+            'danger' => 'text-red-600 hover:bg-red-50 focus:ring-2 focus:ring-red-500/20 dark:text-red-400 dark:hover:bg-red-950',
+            'warning' => 'text-amber-600 hover:bg-amber-50 focus:ring-2 focus:ring-amber-500/20 dark:text-amber-400 dark:hover:bg-amber-950',
+            'info' => 'text-sky-600 hover:bg-sky-50 focus:ring-2 focus:ring-sky-500/20 dark:text-sky-400 dark:hover:bg-sky-950',
+            'default' => 'text-gray-600 hover:bg-gray-50 focus:ring-2 focus:ring-gray-400/20 dark:text-gray-300 dark:hover:bg-gray-800',
+        ];
+    } else {
+        $variants = [
+            'primary' => 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/50 dark:bg-blue-600 dark:hover:bg-blue-700',
+            'secondary' => 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-2 focus:ring-gray-400/50 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
+            'success' => 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500/50 dark:bg-emerald-600 dark:hover:bg-emerald-700',
+            'danger' => 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/50 dark:bg-red-600 dark:hover:bg-red-700',
+            'warning' => 'bg-amber-500 text-white hover:bg-amber-600 focus:ring-2 focus:ring-amber-500/50 dark:bg-amber-600 dark:hover:bg-amber-700',
+            'info' => 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-2 focus:ring-sky-500/50 dark:bg-sky-600 dark:hover:bg-sky-700',
+            'default' => 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-2 focus:ring-gray-400/50 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
+        ];
+    }
 
-    // Warna untuk varian outline
-   $outlineClasses = [
-        'primary' => 'text-blue-500 hover:bg-blue-50 focus:ring-blue-500 border border-blue-500',
-        'secondary' => 'text-gray-600 hover:bg-gray-100 focus:ring-gray-500 border border-gray-300 dark:text-gray-400 dark:hover:bg-dark-eval-2 dark:focus:ring-gray-500 dark:border-gray-600',
-        'success' => 'text-green-500 hover:bg-green-50 focus:ring-green-500 border border-green-500',
-        'danger' => 'text-red-500 hover:bg-red-50 focus:ring-red-500 border border-red-500',
-        'warning' => 'text-yellow-500 hover:bg-yellow-50 focus:ring-yellow-500 border border-yellow-500',
-        'info' => 'text-cyan-500 hover:bg-cyan-50 focus:ring-cyan-500 border border-cyan-500',
-        'black' => 'text-black hover:bg-gray-100 focus:ring-black border border-black dark:text-white dark:hover:bg-dark-eval-3 dark:focus:ring-gray-500 dark:border-gray-700',
+    $variantClasses = $variants[$variant] ?? $variants['default'];
+
+    // Sizes
+    $sizes = [
+        'xs' => $iconOnly ? 'p-1.5 text-xs' : 'px-2.5 py-1.5 text-xs',
+        'sm' => $iconOnly ? 'p-2 text-sm' : 'px-3 py-1.5 text-sm',
+        'base' => $iconOnly ? 'p-2.5' : 'px-4 py-2 text-sm',
+        'lg' => $iconOnly ? 'p-3' : 'px-5 py-2.5 text-base',
+        'xl' => $iconOnly ? 'p-3.5' : 'px-6 py-3 text-base',
     ];
 
+    $sizeClasses = $sizes[$size] ?? $sizes['base'];
 
-    switch ($variant) {
-        case 'primary':
-            $variantClasses = $outlined ? $outlineClasses['primary'] : 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500'; // Gunakan blue
-            break;
-        case 'secondary':
-            $variantClasses = $outlined ? $outlineClasses['secondary'] : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-600';
-            break;
-        case 'success':
-            $variantClasses = $outlined ? $outlineClasses['success'] : 'bg-green-500 text-white hover:bg-green-600 focus:ring-green-500';
-            break;
-        case 'danger':
-            $variantClasses = $outlined ? $outlineClasses['danger'] : 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500';
-            break;
-        case 'warning':
-            $variantClasses =  $outlined ? $outlineClasses['warning'] : 'bg-yellow-400 text-gray-900 hover:bg-yellow-500 focus:ring-yellow-500'; // Sedikit sesuaikan yellow
-            break;
-        case 'info':
-            $variantClasses = $outlined ? $outlineClasses['info'] : 'bg-cyan-500 text-white hover:bg-cyan-600 focus:ring-cyan-500';
-            break;
-        case 'black':
-            $variantClasses = $outlined ? $outlineClasses['black'] : 'bg-black text-gray-300 hover:text-white hover:bg-gray-800 focus:ring-black dark:hover:bg-dark-eval-3';
-            break;
-        case 'default':
-        default:
-            $variantClasses = $defaultClasses; // Gunakan defaultClasses
-            break;
+    // Shape
+    if ($pill) {
+        $shapeClass = 'rounded-full';
+    } elseif ($squared) {
+        $shapeClass = 'rounded-none';
+    } else {
+        $shapeClass = 'rounded-md';
     }
 
+    // Shadow
+    $shadowClass = $shadow ? 'shadow-md hover:shadow-lg' : '';
 
-    switch ($size) {
-        case 'sm':
-            $sizeClasses = $iconOnly ? 'p-1.5' : 'px-3 py-1 text-sm';  // Sedikit perbesar padding
-            break;
-        case 'base':
-            $sizeClasses = $iconOnly ? 'p-2' : 'px-4 py-1.5 text-base'; // Sedikit perkecil padding
-            break;
-        case 'lg':
-            $sizeClasses = $iconOnly ? 'p-2.5' : 'px-5 py-2 text-lg'; // Sedikit perkecil padding
-            break;
-    }
+    // Loading state
+    $loadingClass = $loading ? 'relative !text-transparent' : '';
 
-    $classes = $baseClasses . ' ' . $sizeClasses . ' ' . $variantClasses;
-
-    if (!$squared && !$pill) {
-        $classes .= ' rounded-lg'; // Gunakan rounded-lg
-    } elseif ($pill) {
-        $classes .= ' rounded-full';
-    }
-
+    $classes = $baseClasses . ' ' . $variantClasses . ' ' . $sizeClasses . ' ' . $shapeClass . ' ' . $shadowClass . ' ' . $loadingClass;
 @endphp
 
 @if ($href)
     <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>
-        {{ $slot }}
-        @if($iconOnly)
+        @if($loading)
+            <span class="absolute inset-0 flex items-center justify-center">
+                <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </span>
+        @endif
+
+        @if($icon && $iconPosition === 'left' && !$iconOnly)
+            <span class="shrink-0">{{ $icon }}</span>
+        @endif
+
+        @if(!$iconOnly)
+            <span>{{ $slot }}</span>
+        @else
+            {{ $slot }}
             <span class="sr-only">{{ $srText ?? '' }}</span>
+        @endif
+
+        @if($icon && $iconPosition === 'right' && !$iconOnly)
+            <span class="shrink-0">{{ $icon }}</span>
         @endif
     </a>
 @else
-    <button {{ $attributes->merge(['type' => 'submit', 'class' => $classes]) }}>
-        {{ $slot }}
-        @if($iconOnly)
+    <button {{ $attributes->merge(['type' => 'submit', 'class' => $classes, 'disabled' => $disabled || $loading]) }}>
+        @if($loading)
+            <span class="absolute inset-0 flex items-center justify-center">
+                <svg class="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </span>
+        @endif
+
+        @if($icon && $iconPosition === 'left' && !$iconOnly)
+            <span class="shrink-0">{{ $icon }}</span>
+        @endif
+
+        @if(!$iconOnly)
+            <span>{{ $slot }}</span>
+        @else
+            {{ $slot }}
             <span class="sr-only">{{ $srText ?? '' }}</span>
+        @endif
+
+        @if($icon && $iconPosition === 'right' && !$iconOnly)
+            <span class="shrink-0">{{ $icon }}</span>
         @endif
     </button>
 @endif

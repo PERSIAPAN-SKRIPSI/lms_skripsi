@@ -222,7 +222,7 @@
                     </div>
                     @role('admin|teacher')
                         <div class="mt-4 text-right">
-                            <a href="{{ route('admin.courses.create.video', ['course' => $course->id]) }}"
+                            <a href="{{ route('admin.courses.create', ['course' => $course->id]) }}"
                                 class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-semibold text-sm transition duration-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"

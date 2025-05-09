@@ -61,6 +61,13 @@
                         <x-input-error :messages="$errors->get('about')" class="mt-2" />
                     </div>
 
+                    <!-- Tambahkan Description disini -->
+                    <div class="mt-4">
+                        <x-input-label for="description" :value="__('Description')" />
+                        <textarea name="description" id="description" cols="30" rows="5" class="border border-slate-300 rounded-xl w-full">{{ old('description', $course->description) }}</textarea>
+                        <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                    </div>
+
                     <div class="mt-4">
                         <x-input-label for="keypoints" :value="__('Keypoints')" />
                         <div class="flex flex-col gap-y-2">

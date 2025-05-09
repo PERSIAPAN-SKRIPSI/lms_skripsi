@@ -33,7 +33,7 @@
    {{-- @vite(['resources/js/frontend/player.js']) --}}
 
    <!-- Custom CSS for Quiz Section -->
-  <!-- Custom CSS for Quiz Section -->
+  {{-- <!-- Custom CSS for Quiz Section -->
   <style>
     .quiz-section {
       background-color: #fff; /* White background for quiz section */
@@ -204,7 +204,7 @@
         background-color: transparent; /* No background hover effect on locked videos */
         color: #999; /* Keep lighter color on hover */
      }
-  </style>
+  </style> --}}
 </head>
 
 <body class="home_3">
@@ -226,6 +226,7 @@
             <div class="wsus__course_header">
                 <a href="{{ route('employees-dashboard.courses.index') }}"><i class="fas fa-angle-left"></i>
                     {{ $course->name }}</a>
+                    <p>Your Progress: {{ $overallProgress['completed_items'] }} of {{ $overallProgress['total_items'] }} ({{ $overallProgress['percentage'] }}%)</p>
             </div>
         </div>
         <div class="wsus__course_video_player">
@@ -410,6 +411,7 @@
     <!--===========================
          COURSE VIDEO END
      ============================-->
+
    <!--jquery library js-->
    <script src="{{ asset('frontend/assets/js/jquery-3.7.1.min.js') }}"></script>
    <!--bootstrap js-->
@@ -457,98 +459,301 @@
    <script src="{{ asset('frontend/assets/js/main.js') }}"></script>
    <script src="{{ asset('frontend/assets/js/player.js') }}"></script>
    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const videoPlayer = videojs('vid1'); // Initialize video.js
-        const videoItems = document.querySelectorAll('.video-item');
-        const videoCompletionCheckboxes = document.querySelectorAll('.video-checkbox');
-        const notyf = new Notyf(); // Initialize Notyf
+document.addEventListener('DOMContentLoaded', function() {
+    // Core player initialization
+    const videoPlayer = videojs('vid1');
+    const notyf = new Notyf({
+        duration: 3000,
+        position: {
+            x: 'right',
+            y: 'top'
+        },
+        types: [{
+                type: 'success',
+                background: '#28a745',
+                duration: 3000
+            },
+            {
+                type: 'error',
+                background: '#dc3545',
+                duration: 3000
+            },
+            {
+                type: 'info',
+                background: '#17a2b8',
+                duration: 2000
+            }
+        ]
+    });
 
-        // Function to load and play a video
-        function loadVideo(videoId, videoPath, videoName) {
-            videoPlayer.src({
-                type: "video/youtube",
-                src: "https://youtu.be/" + videoPath
-            });
-            videoPlayer.poster(''); // Clear poster if any
-            videoPlayer.load(); // Load video source
-            videoPlayer.play();
-            // Update video heading
-            document.querySelector('.video_heading').textContent = videoName;
-            // Store current video ID to be easily accessible
-            videoPlayer.currentVideoId = videoId;
-        }
+    // Track video completion
+    let videoCompleted = false;
+    let videoTimeUpdated = false;
+    const completionThreshold = 100; // 90% completion to mark as watched
 
-        // Event listener for clicking on a video link in the sidebar
+    // Load and play a video function
+    function loadVideo(videoId, videoPath, videoName) {
+        // Reset completion tracking
+        videoCompleted = false;
+        videoTimeUpdated = false;
+
+        // Update video source
+        videoPlayer.src({
+            type: "video/youtube",
+            src: "https://youtu.be/" + videoPath
+        });
+
+        videoPlayer.poster('');
+        videoPlayer.load();
+        videoPlayer.play();
+
+        // Update displayed video name
+        document.querySelector('.video_heading').textContent = videoName;
+
+        // Store current video ID for reference
+        videoPlayer.currentVideoId = videoId;
+
+        // Activate the corresponding sidebar item
+        activateSidebarItem(videoId);
+    }
+
+    // Activate sidebar item for current video
+    function activateSidebarItem(videoId) {
+        // Remove active class from all items
         document.querySelectorAll('.video-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent default link behavior
-                const videoId = this.dataset.videoId;
-                const videoPath = this.dataset.videoPath;
-                const videoName = this.dataset.videoName;
-                loadVideo(videoId, videoPath, videoName);
-            });
+            link.classList.remove('active-video');
         });
 
-        // Event listener for video completion checkboxes
-        videoCompletionCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const videoId = this.dataset.videoId;
-                const isChecked = this.checked;
+        // Add active class to current video
+        const activeLink = document.querySelector(`.video-link[data-video-id="${videoId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active-video');
 
-                fetch('/employee/update-lesson-completion', { // Adjust route as needed
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf_token"]')
-                                .getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            video_id: videoId,
-                            is_completed: isChecked
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            notyf.success(data.message); // Show success notification
-                            if (data.next_step === 'quiz') {
-                                // Redirect to quiz info page
-                                window.location.href = `/employee/quiz-info/${data.quiz_id}`;
-                            } else if (data.next_step === 'next_chapter') {
-                                // Implement logic to navigate to the next chapter, e.g., reload page to chapter or smooth scroll
-                                notyf.info('Mengarahkan ke chapter selanjutnya...'); // Inform user about chapter navigation
-                                setTimeout(function() {
-                                    window.location.reload(); // Simple page reload for next chapter - adjust as needed
-                                }, 1500); // Delay for notification to be visible
-                            } else if (data.next_step === 'course_completed') {
-                                notyf.success('Selamat! Kursus telah selesai.'); // Course completed notification
-                                // Optionally redirect to course completion page or dashboard
-                            } else if (data.next_step === 'chapter_video_list') {
-                                // Optionally provide feedback or actions for completing a video within a chapter
-                                console.log('Video selesai dalam chapter.');
+            // Expand accordion if collapsed
+            const accordionBody = activeLink.closest('.accordion-collapse');
+            if (accordionBody && !accordionBody.classList.contains('show')) {
+                const accordionId = accordionBody.id;
+                const accordionButton = document.querySelector(`[data-bs-target="#${accordionId}"]`);
+                if (accordionButton) {
+                    accordionButton.click();
+                }
+            }
+        }
+    }
+
+    // Video completion handler
+    function handleVideoCompletion(videoId) {
+        if (videoCompleted) return;
+
+        videoCompleted = true;
+        const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
+
+        // Show spinner during processing
+        const videoLabel = document.querySelector(`.video-link[data-video-id="${videoId}"]`);
+        const spinner = videoLabel.querySelector('.spinner-border');
+        if (spinner) spinner.classList.remove('d-none');
+
+        if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            updateLessonCompletionStatus(videoId, true);
+        }
+    }
+
+    // Send completion status to server
+    function updateLessonCompletionStatus(videoId, isCompleted) {
+        // Show spinner during processing
+        const videoLabel = document.querySelector(`.video-link[data-video-id="${videoId}"]`);
+        const spinner = videoLabel.querySelector('.spinner-border');
+        if (spinner) spinner.classList.remove('d-none');
+
+        fetch('/employee/update-lesson-completion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf_token"]').getAttribute(
+                        'content')
+                },
+                body: JSON.stringify({
+                    video_id: videoId,
+                    is_completed: isCompleted,
+                    update_progress: true // Add this flag to explicitly update overall progress
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (spinner) spinner.classList.add('d-none');
+
+                if (data.message) {
+                    notyf.success(data.message);
+
+                    // Update progress display if returned
+                    if (data.progress) {
+                        updateProgressDisplay(data.progress);
+                    }
+
+                    // Handle next steps based on server response
+                    handleLessonCompletionNextStep(data);
+                } else if (data.error) {
+                    notyf.error(data.error);
+                    // Revert checkbox if there was an error
+                    const checkbox = document.querySelector(
+                        `.video-checkbox[data-video-id="${videoId}"]`);
+                    if (checkbox) checkbox.checked = !isCompleted;
+                }
+            })
+            .catch(error => {
+                if (spinner) spinner.classList.add('d-none');
+
+                console.error('Error:', error);
+                notyf.error('Terjadi kesalahan saat menyimpan progress.');
+                // Revert checkbox on error
+                const checkbox = document.querySelector(`.video-checkbox[data-video-id="${videoId}"]`);
+                if (checkbox) checkbox.checked = !isCompleted;
+            });
+    }
+
+    // Update progress display in the header
+    function updateProgressDisplay(progress) {
+        if (!progress) return;
+
+        const progressElement = document.querySelector('.wsus__course_header p');
+        if (progressElement) {
+            progressElement.textContent = `Your Progress: ${progress.completed_items} of ${progress.total_items} (${progress.percentage}%)`;
+        }
+    }
+
+    // Handle next steps after lesson completion
+    function handleLessonCompletionNextStep(data) {
+        switch (data.next_step) {
+            case 'quiz':
+                notyf.info('Mengarahkan ke quiz...');
+                setTimeout(() => {
+                    window.location.href = `/employee/quiz-info/${data.quiz_id}`;
+                }, 1500);
+                break;
+
+            case 'next_chapter':
+                notyf.info('Mengarahkan ke chapter selanjutnya...');
+                setTimeout(() => {
+                    // Find first video in next chapter and play it
+                    const nextChapterId = data.next_chapter_id;
+                    if (nextChapterId) {
+                        const nextChapterAccordion = document.querySelector(
+                            `#collapse${nextChapterId}`);
+                        if (nextChapterAccordion) {
+                            // Expand the accordion
+                            const accordionButton = document.querySelector(
+                                `[data-bs-target="#collapse${nextChapterId}"]`);
+                            if (accordionButton && !nextChapterAccordion.classList.contains(
+                                'show')) {
+                                accordionButton.click();
                             }
-                        } else if (data.error) {
-                            notyf.error(data.error); // Show error notification
-                            this.checked = !isChecked; // Revert checkbox state on error
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        notyf.error('Terjadi kesalahan saat menyimpan progress.'); // General error notification
-                        this.checked = !isChecked; // Revert checkbox state on AJAX error
-                    });
-            });
-        });
 
-        // Initialize video player with the first video, if available
-        const initialVideoLink = document.querySelector('.video-link');
-        if (initialVideoLink) {
-            const videoId = initialVideoLink.dataset.videoId;
-            const videoPath = initialVideoLink.dataset.videoPath;
-            const videoName = initialVideoLink.dataset.videoName;
-            loadVideo(videoId, videoPath, videoName);
+                            // Find first video and play it
+                            setTimeout(() => {
+                                const firstVideo = nextChapterAccordion.querySelector(
+                                    '.video-link');
+                                if (firstVideo) {
+                                    const videoId = firstVideo.dataset.videoId;
+                                    const videoPath = firstVideo.dataset.videoPath;
+                                    const videoName = firstVideo.dataset.videoName;
+                                    loadVideo(videoId, videoPath, videoName);
+                                }
+                            }, 500);
+                        } else {
+                            window.location.reload(); // Fallback: reload page
+                        }
+                    } else {
+                        window.location.reload(); // Fallback: reload page
+                    }
+                }, 1500);
+                break;
+
+            case 'course_completed':
+                notyf.success('Selamat! Kursus telah selesai.');
+                // Could redirect to completion page or show a modal
+                setTimeout(() => {
+                    // Redirect to course completion or dashboard
+                    window.location.href = '/employee/courses';
+                }, 3000);
+                break;
+        }
+    }
+
+    // Event listeners
+
+    // Video end event
+    videoPlayer.on('ended', function() {
+        if (videoPlayer.currentVideoId) {
+            handleVideoCompletion(videoPlayer.currentVideoId);
         }
     });
+
+    // Track video progress
+    videoPlayer.on('timeupdate', function() {
+        if (videoTimeUpdated || !videoPlayer.currentVideoId) return;
+
+        const currentTime = videoPlayer.currentTime();
+        const duration = videoPlayer.duration();
+
+        if (duration > 0 && (currentTime / duration) >= completionThreshold) {
+            videoTimeUpdated = true;
+            handleVideoCompletion(videoPlayer.currentVideoId);
+        }
+    });
+
+    // Click handler for video links
+    document.querySelectorAll('.video-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Skip if clicking on locked videos
+            if (this.classList.contains('video-link-locked')) {
+                e.preventDefault();
+                notyf.error('Selesaikan video sebelumnya terlebih dahulu.');
+                return;
+            }
+
+            e.preventDefault();
+            const videoId = this.dataset.videoId;
+            const videoPath = this.dataset.videoPath;
+            const videoName = this.dataset.videoName;
+            loadVideo(videoId, videoPath, videoName);
+        });
+    });
+
+    // Checkbox click handler
+    document.querySelectorAll('.video-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const videoId = this.dataset.videoId;
+            const isChecked = this.checked;
+
+            // Get the associated link to check if it's locked
+            const videoLink = document.querySelector(
+                `.video-link[data-video-id="${videoId}"]`);
+            if (videoLink && videoLink.classList.contains('video-link-locked')) {
+                this.checked = false;
+                notyf.error('Selesaikan video sebelumnya terlebih dahulu.');
+                return;
+            }
+
+            updateLessonCompletionStatus(videoId, isChecked);
+        });
+    });
+
+    // Initialize first video
+    const initialVideoLink = document.querySelector('.video-link:not(.video-link-locked)');
+    if (initialVideoLink) {
+        const videoId = initialVideoLink.dataset.videoId;
+        const videoPath = initialVideoLink.dataset.videoPath;
+        const videoName = initialVideoLink.dataset.videoName;
+        loadVideo(videoId, videoPath, videoName);
+    }
+});
+
 </script>
 </body>
 

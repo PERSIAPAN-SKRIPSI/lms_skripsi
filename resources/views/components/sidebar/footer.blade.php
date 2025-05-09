@@ -1,8 +1,8 @@
 <div class="px-3 flex-shrink-0 lg:hidden">
-    <x-button 
-        type="button" 
-        iconOnly 
-        variant="secondary" 
+    <x-button
+        type="button"
+        iconOnly
+        variant="secondary"
         x-show="!isSidebarOpen"
         @click="isSidebarOpen = !isSidebarOpen"
         srText="Toggle sidebar"

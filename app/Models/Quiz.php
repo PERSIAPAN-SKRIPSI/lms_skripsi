@@ -20,7 +20,7 @@ class Quiz extends Model
         'duration',
         'is_active',
         'chapter_id', // Pastikan chapter_id ada di sini!
-        
+
     ];
 
     // Relasi ke Course

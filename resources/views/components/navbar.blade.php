@@ -96,7 +96,7 @@
 
     <a href="{{ route('dashboard') }}">
         <img src="{{ asset('frontend/assets/images/logo.png') }}" alt="logo">
-        <span class="sr-only">K UI</span>
+        <span class="sr-only"Educore</span>
     </a>
 
     <x-button type="button" iconOnly variant="secondary" srText="Open main menu"
