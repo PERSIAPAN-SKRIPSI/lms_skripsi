@@ -189,16 +189,20 @@ class CourseController extends Controller
             // Handle demo video
             if ($validated['demo_video_storage'] === 'upload') {
                 if ($request->hasFile('demo_video_source_file')) {
-                    if ($course->demo_video_source && $course->demo_video_storage === 'upload'
-                        && Storage::disk('public')->exists($course->demo_video_source)) {
+                    if (
+                        $course->demo_video_source && $course->demo_video_storage === 'upload'
+                        && Storage::disk('public')->exists($course->demo_video_source)
+                    ) {
                         Storage::disk('public')->delete($course->demo_video_source);
                     }
                     $validated['demo_video_source'] = $request->file('demo_video_source_file')
                         ->store('course_videos', 'public');
                 }
             } else {
-                if ($course->demo_video_storage === 'upload' && $course->demo_video_source
-                    && Storage::disk('public')->exists($course->demo_video_source)) {
+                if (
+                    $course->demo_video_storage === 'upload' && $course->demo_video_source
+                    && Storage::disk('public')->exists($course->demo_video_source)
+                ) {
                     Storage::disk('public')->delete($course->demo_video_source);
                 }
             }
@@ -351,6 +355,4 @@ class CourseController extends Controller
     {
         return view('admin.courses.show', compact('course'));
     }
-
-
 }

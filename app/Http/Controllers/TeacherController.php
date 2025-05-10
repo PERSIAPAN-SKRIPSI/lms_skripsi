@@ -220,12 +220,12 @@ class TeacherController extends Controller
                 $user->assignRole('teacher');
 
                 // Set is_approved ke true saat role berubah menjadi teacher
-                 $user->update(['is_approved' => true]);
+                $user->update(['is_approved' => true]);
             }
 
             // Sinkronisasi is_active di tabel users (jika diperlukan)
             if ($request->has('is_active')) {
-              $user->update(['is_active' => $request->is_active]); // Sinkronisasi ke tabel users
+                $user->update(['is_active' => $request->is_active]); // Sinkronisasi ke tabel users
             }
         });
 
@@ -310,40 +310,42 @@ class TeacherController extends Controller
         $teacher->update(['is_active' => !$teacher->is_active]);
         return back()->with('success', 'Status teacher berhasil diupdate');
     }
-  /**
+    /**
      * Display a listing of employee course enrollments for approval.
      */
-    public function employeeCoursesIndex()
+/**
+     * Display a listing of approved employee courses.
+     */
+public function employeeCoursesIndex()
     {
-        $employeeCourses = CourseEmployee::with(['employee', 'course'])
-            ->where('is_approved', false)
-            ->latest()
+        $employeeCourses = CourseEmployee::where('is_approved', true)
+            ->with(['employee', 'course'])
             ->paginate(10);
-
-        return view('admin.teachers.employee-courses.index', compact('employeeCourses')); // Adjust view path
+        return view('admin.teachers.employee-courses.index', compact('employeeCourses'));
     }
 
-    /**
-     * Approve an employee course enrollment.
-     */
-    public function approveEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
+    public function approveCourses()
     {
-        $enrollCourse->is_approved = true;
-        $enrollCourse->save();
-
-        Session::flash('success', 'Pendaftaran kursus karyawan berhasil disetujui.');
-        return redirect()->route('admin.teacher.employee-courses.index'); // Adjust route name
+        $employeeCourses = CourseEmployee::where('is_approved', false)
+            ->with(['employee', 'course'])
+            ->paginate(10);
+        return view('admin.teachers.employee-courses.approve-form', compact('employeeCourses'));
     }
 
-    /**
-     * Reject an employee course enrollment.
-     */
-    public function rejectEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
-    {
-        $enrollCourse->is_approved = false;
-        $enrollCourse->save();
+   public function approveEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
+{
+    $enrollCourse->is_approved = true;
+    $enrollCourse->save();
 
-        Session::flash('success', 'Pendaftaran kursus karyawan ditolak.');
-        return redirect()->route('admin.teacher.employee-courses.index'); // Adjust route name
-    }
+    Session::flash('success', 'Pendaftaran kursus karyawan berhasil disetujui.');
+    return redirect()->route('admin.teacher.employee-courses.approve.list');
+}
+
+public function rejectEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
+{
+    $enrollCourse->delete();
+
+    Session::flash('success', 'Pendaftaran kursus karyawan ditolak.');
+    return redirect()->route('admin.teacher.employee-courses.approve.list');
+}
 }

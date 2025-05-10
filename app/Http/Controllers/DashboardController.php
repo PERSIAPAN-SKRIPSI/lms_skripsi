@@ -26,7 +26,7 @@ class DashboardController extends Controller
                 } elseif ($user->hasRole('teacher')) {
                     Alert::success('Selamat Datang!', 'Anda masuk sebagai Guru.');
                     session()->put('welcome_alert_shown', true);
-                    return redirect()->route('admin.teacher.dashboard');
+                    return redirect()->route('teacher.dashboard');
                 } elseif ($user->hasRole('employee')) {
                     Alert::success('Selamat Datang!', 'Anda masuk sebagai Karyawan.');
                     session()->put('welcome_alert_shown', true);
@@ -37,7 +37,7 @@ class DashboardController extends Controller
                 if ($user->hasRole('admin')) {
                     return redirect()->route('admin.dashboard');
                 } elseif ($user->hasRole('teacher')) {
-                    return redirect()->route('admin.teacher.dashboard');
+                    return redirect()->route('teacher.dashboard');
                 } elseif ($user->hasRole('employee')) {
                     return redirect()->route('employees-dashboard.dashboard');
                 }

@@ -136,7 +136,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('completion', [QuizMonitoringController::class, 'completion'])->name('completion');
             Route::get('user-attempts', [QuizMonitoringController::class, 'userAttempts'])->name('user-attempts'); // Route baru
             Route::get('performance/filter', [QuizMonitoringController::class, 'performanceFilter'])->name('performance.filter');
-
         });
         // Course Video Routes
         Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
@@ -146,62 +145,73 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/video/{course_video}', 'update')->name('update.video');
             Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
         });
-
-        // Teacher Routes - REMOVED DUPLICATE TEACHER ROUTES
-        Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {
-            Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
-
-            // Course Video Routes
-            Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
-                Route::get('/{course}/add/video', 'create')->name('create.video');
-                Route::post('/{course}/add/video', 'store')->name('store.video');
-                Route::get('/video/{course_video}/edit', 'edit')->name('edit.video');
-                Route::put('/video/{course_video}', 'update')->name('update.video');
-                Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
-
-            });
-
-            // Employee Courses Routes
-            Route::prefix('employee-courses')->name('employee-courses.')->group(function () {
-                Route::get('/', [TeacherController::class, 'employeeCoursesIndex'])->name('index');
-                Route::get('/{enrollCourse}/approve', [TeacherController::class, 'showApproveEmployeeCourseForm'])->name('approve-form');
-                Route::post('/{enrollCourse}/approve', [TeacherController::class, 'approveEmployeeCourse'])->name('approve');
-                Route::post('/{enrollCourse}/reject', [TeacherController::class, 'rejectEmployeeCourse'])->name('reject');
-            });
-        });
-
-        // TEACHER Quiz Routes
-        Route::resource('quizzes', QuizController::class); // GUNAKAN RESOURCE ROUTE
-        // Employee Course Management Routes - NOW USING TeacherController
-        Route::prefix('employee-courses')->name('employee-courses.')->group(function () {
-            Route::get('/', [TeacherController::class, 'employeeCoursesIndex'])->name('index'); // Daftar kursus employee untuk approval - TeacherController
-            Route::post('/{enrollCourse}/approve', [TeacherController::class, 'approveEmployeeCourse'])->name('approve');
-            Route::post('/{enrollCourse}/reject', [TeacherController::class, 'rejectEmployeeCourse'])->name('reject');
-            Route::get('/{enrollCourse}/approve', [TeacherController::class, 'showApproveEmployeeCourseForm'])->name('approve-form'); // Also check approve-form route
-        });
     });
+        // Teacher Routes - SEPARATE FROM ADMIN
+    Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {
+        Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
+
+        // Course Management
+        Route::resource('courses', CourseController::class);
+        Route::put('courses/{course}/update-approval', [CourseController::class, 'updateApproval'])->name('courses.update-approval');
+
+        // Categories
+        Route::resource('categories', CategoryController::class)->except(['show']);
+
+        // Course Video Routes
+        Route::controller(CourseVideoController::class)->name('courses.')->group(function () {
+            Route::get('/{course}/add/video', 'create')->name('create.video');
+            Route::post('/{course}/add/video', 'store')->name('store.video');
+            Route::get('/video/{course_video}/edit', 'edit')->name('edit.video');
+            Route::put('/video/{course_video}', 'update')->name('update.video');
+            Route::delete('/video/{course_video}', 'destroy')->name('delete.video');
+        });
+
+        // Course Content Routes
+        Route::controller(CourseController::class)->name('courses.')->group(function () {
+            Route::get('/{course}/create-chapter', 'createChapter')->name('create-chapter');
+            Route::post('/{course}/create-chapter', 'storeChapter')->name('store-chapter');
+            Route::get('/chapter/{chapter}/edit-chapter', 'editChapter')->name('edit-chapter');
+            Route::put('/chapter/{chapter}/edit-chapter', 'updateChapter')->name('update-chapter');
+            Route::delete('/chapter/{chapter}', 'destroyChapter')->name('destroy-chapter');
+        });
+
+        // Quiz Management
+        Route::resource('quizzes', QuizController::class);
+        Route::resource('quizzes/{quiz}/questions', QuestionController::class);
+        Route::resource('quizzes/{quiz}/questions/{question}/options', QuestionOptionController::class);
+
+        // Employee Courses Routes
+        Route::prefix('employee-courses')->name('employee-courses.')->group(function () {
+            Route::get('/', [TeacherController::class, 'employeeCoursesIndex'])->name('index');
+            Route::get('/approve', [TeacherController::class, 'approveCourses'])->name('approve.list');
+            Route::post('/{enrollCourse}/approve', [TeacherController::class, 'approveEmployeeCourse'])->name('approve.action');
+            Route::post('/{enrollCourse}/reject', [TeacherController::class, 'rejectEmployeeCourse'])->name('reject');
+        });
+        
+    });
+
 
 
     // Employee Routes
 
-        // Employee Routes
+    // Employee Routes
     Route::prefix('employee')->name('employees-dashboard.')->middleware('role:employee')->group(function () {
-            // Dashboard & Learning Progress
-            Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
-            Route::get('/learning-progress', [EmployeeDashboardController::class, 'learningProgressIndex'])->name('learning-progress.index');
+        // Dashboard & Learning Progress
+        Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/learning-progress', [EmployeeDashboardController::class, 'learningProgressIndex'])->name('learning-progress.index');
 
-            // Available Courses & Enrollment
-            Route::controller(CourseEmployeeController::class)->group(function () {
-                Route::get('/courses', 'index')->name('courses.index');
-                // Ubah rute ini untuk menggunakan slug
-                Route::get('/courses/{course:slug}', 'show')->name('courses.show');
-                Route::post('/courses/{course:slug}/enroll', 'enroll')->name('courses.enroll'); // Ubah nama route menjadi employees-dashboard.courses.enroll
-                // Ubah rute ini untuk menggunakan slug
-                Route::get('/courses/{course:slug}/learn', 'learn')->name('courses.learn');
-                Route::get('/get-lesson-content', 'getLessonContent')->name('get-lesson-content');
-                Route::post('/update-watch-history', 'updateWatchHistory')->name('update-watch-history');
-                Route::post('/update-lesson-completion', 'updateLessonCompletion')->name('update-lesson-completion');
-                // Quiz Routes
+        // Available Courses & Enrollment
+        Route::controller(CourseEmployeeController::class)->group(function () {
+            Route::get('/courses', 'index')->name('courses.index');
+            // Ubah rute ini untuk menggunakan slug
+            Route::get('/courses/{course:slug}', 'show')->name('courses.show');
+            Route::post('/courses/{course:slug}/enroll', 'enroll')->name('courses.enroll'); // Ubah nama route menjadi employees-dashboard.courses.enroll
+            // Ubah rute ini untuk menggunakan slug
+            Route::get('/courses/{course:slug}/learn', 'learn')->name('courses.learn');
+            Route::get('/get-lesson-content', 'getLessonContent')->name('get-lesson-content');
+            Route::post('/update-watch-history', 'updateWatchHistory')->name('update-watch-history');
+            Route::post('/update-lesson-completion', 'updateLessonCompletion')->name('update-lesson-completion');
+            // Quiz Routes
             Route::get('/get-quiz/{quiz}', 'getQuiz')->name('get-quiz');
             Route::get('/quiz-info/{quiz}', 'showQuizInfo')->name('quiz-info'); // Route baru untuk informasi kuis
             Route::post('/submit-quiz', 'submitQuiz')->name('submit-quiz');
@@ -209,9 +219,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/quiz-results/{quizAttempt}/details', 'quizResultDetails')->name('quiz-result-details');
             Route::get('/quiz-results/{quizAttempt}', 'quizResults')->name('quiz-results');
         });
-
     });
-
 });
 
 require __DIR__ . '/auth.php';
