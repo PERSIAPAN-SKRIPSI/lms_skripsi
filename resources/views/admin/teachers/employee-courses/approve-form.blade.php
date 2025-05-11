@@ -35,11 +35,11 @@
                                         <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900 dark:text-gray-100">{{ $enrollCourse->course->name }}</div></td>
                                         <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-900 dark:text-gray-100">{{ $enrollCourse->enrolled_at->format('Y-m-d H:i') }}</div></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right font-medium">
-                                            <form action="{{ route('admin.teacher.employee-courses.approve.action', $enrollCourse->id) }}" method="POST" class="inline-block">
+                                            <form action="{{ route('teacher.employee-courses.approve.action', $enrollCourse->id) }}" method="POST" class="inline-block">
                                                 @csrf
                                                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">Approve</button>
                                             </form>
-                                            <form action="{{ route('admin.teacher.employee-courses.reject', $enrollCourse->id) }}" method="POST" class="inline-block ml-2">
+                                            <form action="{{ route('teacher.employee-courses.reject', $enrollCourse->id) }}" method="POST" class="inline-block ml-2">
                                                 @csrf
                                                 <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">Reject</button>
                                             </form>
