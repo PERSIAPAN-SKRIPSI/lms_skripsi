@@ -338,7 +338,7 @@ public function employeeCoursesIndex()
     $enrollCourse->save();
 
     Session::flash('success', 'Pendaftaran kursus karyawan berhasil disetujui.');
-    return redirect()->route('admin.teacher.employee-courses.approve.list');
+    return redirect()->route('teacher.employee-courses.approve.list');
 }
 
 public function rejectEmployeeCourse(Request $request, CourseEmployee $enrollCourse)
@@ -346,6 +346,6 @@ public function rejectEmployeeCourse(Request $request, CourseEmployee $enrollCou
     $enrollCourse->delete();
 
     Session::flash('success', 'Pendaftaran kursus karyawan ditolak.');
-    return redirect()->route('admin.teacher.employee-courses.approve.list');
+    return redirect()->route('teacher.employee-courses.approve.list');
 }
 }
