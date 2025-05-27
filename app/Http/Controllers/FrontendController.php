@@ -216,25 +216,94 @@ class FrontendController extends Controller
     /**
      * Menampilkan halaman daftar semua kursus.
      */
-    public function Courses()
+ public function Courses(Request $request)
     {
-        // Ambil semua kursus, eager load teacher, dan hitung videos dan employees
-        $courses = Course::with('teacher', 'teacher.user', 'videos') // Eager load teacher, user, and videos
-            ->withCount('videos') // Hitung jumlah videos (lessons)
-            ->withCount('employees') // Hitung jumlah employees (students) yang enrolled
-            ->latest() // Tambahkan latest() untuk urutan terbaru (opsional)
-            ->paginate(9); // Pagination untuk daftar kursus, sesuaikan jumlah per halaman jika perlu (contoh: 9)
+        // Query builder untuk courses
+        $query = Course::with('teacher', 'teacher.user', 'videos', 'category')
+            ->withCount('videos')
+            ->withCount('employees');
 
-        // Ambil kategori untuk sidebar filter (opsional)
+        // Filter berdasarkan search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%")
+                  ->orWhereHas('teacher.user', function($teacherQuery) use ($search) {
+                      $teacherQuery->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter berdasarkan category
+        if ($request->filled('categories')) {
+            $categoryIds = is_array($request->categories)
+                ? $request->categories
+                : explode(',', $request->categories);
+
+            // Filter berdasarkan category yang dipilih (termasuk subcategories)
+            $query->where(function($q) use ($categoryIds) {
+                $q->whereIn('category_id', $categoryIds)
+                  ->orWhereHas('category', function($categoryQuery) use ($categoryIds) {
+                      $categoryQuery->whereIn('parent_id', $categoryIds);
+                  });
+            });
+        }
+
+        // Filter berdasarkan duration
+        if ($request->filled('duration')) {
+            $durations = is_array($request->duration)
+                ? $request->duration
+                : explode(',', $request->duration);
+
+            $query->where(function($q) use ($durations) {
+                foreach ($durations as $duration) {
+                    $range = explode('-', $duration);
+                    if (count($range) == 2) {
+                        $min = (int)$range[0];
+                        $max = (int)$range[1];
+
+                        if ($max == 999999) {
+                            // For "5+ Hours" case
+                            $q->orWhere('duration', '>=', $min);
+                        } else {
+                            $q->orWhereBetween('duration', [$min, $max]);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ambil courses dengan pagination
+        $courses = $query->latest()->paginate(9);
+
+        // Preserve query parameters in pagination links
+        $courses->appends($request->query());
+
+        // Ambil kategori untuk sidebar filter
         $categories = Category::whereNull('parent_id')
-            ->with('children') // Load subcategories
+            ->with(['children' => function($query) {
+                $query->withCount('courses');
+            }])
             ->withCount('courses')
+            ->orderBy('name')
             ->get();
 
+        // Get selected filters for view
+        $selectedCategories = $request->filled('categories')
+            ? (is_array($request->categories) ? $request->categories : explode(',', $request->categories))
+            : [];
 
-        return view('frontend.pages.courses.index', [ // Pastikan path view benar
+        $selectedDurations = $request->filled('duration')
+            ? (is_array($request->duration) ? $request->duration : explode(',', $request->duration))
+            : [];
+
+        return view('frontend.pages.courses.index', [
             'courses' => $courses,
-            'categories' => $categories, // Kirim kategori juga untuk sidebar filter
+            'categories' => $categories,
+            'selectedCategories' => $selectedCategories,
+            'selectedDurations' => $selectedDurations,
+            'searchTerm' => $request->search ?? '',
         ]);
     }
 }
