@@ -6,7 +6,6 @@ use App\Http\Controllers\CourseController;
 
 use App\Http\Controllers\CourseVideoController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherController;
@@ -14,7 +13,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\CourseEmployeeController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
-use App\Http\Controllers\EnrollCourseController;
+use App\Http\Controllers\PerformanceReportController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuestionOptionController;
 use App\Http\Controllers\QuizAttemptController;
@@ -82,6 +81,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware('role:admin|teacher')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/performance', [PerformanceReportController::class, 'index'])->name('performance.index');
+        Route::post('/performance/download', [PerformanceReportController::class, 'downloadReport'])->name('performance.download');
+        Route::post('/performance/preview', [PerformanceReportController::class, 'previewReport'])->name('performance.preview');
 
         Route::post('/teachers/check-documents', [TeacherController::class, 'checkDocuments'])->name('teachers.check-documents');
         Route::resource('teachers', TeacherController::class);
@@ -187,7 +189,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/{enrollCourse}/approve', [TeacherController::class, 'approveEmployeeCourse'])->name('approve.action');
             Route::post('/{enrollCourse}/reject', [TeacherController::class, 'rejectEmployeeCourse'])->name('reject');
         });
-        
+
     });
 
 

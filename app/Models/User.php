@@ -32,8 +32,8 @@ class User extends Authenticatable
         'position',
         'employment_status',
         'join_date',
-        'is_active',
-        'is_approved'
+        // 'is_active',
+        // 'is_approved'
     ];
 
     protected $hidden = [
@@ -56,7 +56,7 @@ class User extends Authenticatable
      */
     public function courses(): BelongsToMany
     {
-        return $this->belongsToMany(Course::class, 'course_karyawans')
+        return $this->belongsToMany(Course::class, 'course_employees')
         ;
     }
 

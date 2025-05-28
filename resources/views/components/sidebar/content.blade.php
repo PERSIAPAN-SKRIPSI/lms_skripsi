@@ -58,6 +58,17 @@
                     <x-sidebar.sublink href="{{ route('admin.quizzes.monitoring.user-attempts') }}"
                         title="User Attempts" :isActive="request()->routeIs('admin.quizzes.monitoring.user-attempts')" />
                 </x-sidebar.dropdown>
+
+                {{-- laporan performance repost --}}
+                <x-sidebar.dropdown title="Performance Report" :isActive="Str::startsWith(request()->route()->getName(), 'admin.performance-report.')">
+                    <x-slot name="icon">
+                        <x-heroicon-o-document-report class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400"
+                            aria-hidden="true" />
+                    </x-slot>
+ <x-sidebar.sublink href="{{ route('admin.performance.index') }}" title="Performance Report" {{-- <--- Ubah ini --}}
+        :isActive="request()->routeIs('admin.performance.index')" /> {{-- <--- Ubah ini --}}
+
+                </x-sidebar.dropdown>
             </div>
             <hr class="border-gray-200 dark:border-gray-700">
         @endif

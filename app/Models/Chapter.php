@@ -17,7 +17,6 @@ class Chapter extends Model
     protected $fillable = [
         'course_id',
         'name',
-        'description',
         'order',
         'is_active'
     ];
