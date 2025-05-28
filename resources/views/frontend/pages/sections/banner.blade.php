@@ -19,7 +19,7 @@
       <div class="col-xl-4 col-lg-6 wow fadeInRight">
          <div class="wsus__banner_3_img">
             <div class="img">
-               <img class="img-fluid" src="{{ asset('frontend/assets/images/homepagee.png') }}" alt="Banner">
+               <img class="img-fluid" src="{{ asset('frontend/assets/images/banner_img_2.webp') }}" alt="Banner">
 
                <div class="text">
                   <h4>250+ Popular Course</h4>
