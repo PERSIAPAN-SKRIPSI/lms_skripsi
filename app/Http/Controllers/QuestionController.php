@@ -138,6 +138,6 @@ class QuestionController extends Controller
     public function show(Quiz $quiz, Question $question)
     {
         // Logika untuk menampilkan detail pertanyaan
-        return view('admin.questions.show', compact('quiz', 'question'));
+        return view('admin.quizzes.questions.show', compact('quiz', 'question'));
     }
 }
